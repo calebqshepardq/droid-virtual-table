@@ -44,9 +44,14 @@ public class Action extends Entity {
 	private Type type;
 	/** The visibility value for PLAYERS. */
 	private String command;
+	private boolean defaultAction;
 
 	public enum DbField {
-		ID, GROUP_ID, NAME, TYPE, COMMAND
+		ID, GROUP_ID, NAME, TYPE, COMMAND, IS_DEFAULT
+	}
+
+	public Action() {
+		super();
 	}
 
 	/**
@@ -96,5 +101,13 @@ public class Action extends Entity {
 
 	public void setCommand(String command) {
 		this.command = command;
+	}
+
+	public boolean isDefaultAction() {
+		return defaultAction;
+	}
+
+	public void setDefaultAction(boolean defaultAction) {
+		this.defaultAction = defaultAction;
 	}
 }

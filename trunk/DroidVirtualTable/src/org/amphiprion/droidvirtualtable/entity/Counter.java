@@ -26,9 +26,6 @@ package org.amphiprion.droidvirtualtable.entity;
  * 
  */
 public class Counter extends Entity {
-	public enum Shape {
-		RECTANGLE, OVAL
-	}
 
 	/**
 	 * Serial UID.
@@ -42,15 +39,17 @@ public class Counter extends Entity {
 	private String name;
 	/** The image name. */
 	private String ImageName;
-	/** The counter Shape. */
-	private Shape shape;
 	/** The width in millimeter. */
 	private int width;
 	/** The height in millimeter. */
 	private int height;
 
 	public enum DbField {
-		ID, GAME_ID, NAME, IMAGE, SHAPE, WIDTH, HEIGHT
+		ID, GAME_ID, NAME, IMAGE, WIDTH, HEIGHT
+	}
+
+	public Counter() {
+		super();
 	}
 
 	/**
@@ -110,11 +109,4 @@ public class Counter extends Entity {
 		this.width = width;
 	}
 
-	public Shape getShape() {
-		return shape;
-	}
-
-	public void setShape(Shape shape) {
-		this.shape = shape;
-	}
 }

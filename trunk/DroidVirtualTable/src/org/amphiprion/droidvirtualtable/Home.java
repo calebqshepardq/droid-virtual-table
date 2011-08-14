@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -318,9 +319,9 @@ public class Home extends Activity {
 
 								@Override
 								public void importEnded(boolean succeed, Game game) {
-									// TODO voir pourquoi ça ne se refresh pas
-									// apres un import.
+									Log.d(ApplicationConstants.PACKAGE, "import ended");
 									if (succeed) {
+										Log.d(ApplicationConstants.PACKAGE, "on refresh");
 										initGameList();
 									}
 

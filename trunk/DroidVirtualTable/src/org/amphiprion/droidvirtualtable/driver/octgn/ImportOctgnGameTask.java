@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.R;
+import org.amphiprion.droidvirtualtable.dao.GameDao;
 import org.amphiprion.droidvirtualtable.driver.ImportGameListener;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.util.FileUtil;
@@ -55,9 +56,10 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 	protected Game doInBackground(File... files) {
 		file = files[0];
 		title = file.getName();
+		File root = null;
 		try {
-
-			File root = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_GAMES + "/current");
+			GameDao.getInstance(caller.getContext()).getDatabase().beginTransaction();
+			root = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_GAMES + "/current");
 			root.mkdirs();
 
 			// Unzip o8g
@@ -77,12 +79,16 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 			Game game = gameHandler.parse(new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_GAMES), root, gameFile);
 
 			// delete current directory (unzipped data)
-			FileUtil.deleteDirectory(root);
+			GameDao.getInstance(caller.getContext()).getDatabase().setTransactionSuccessful();
 			return game;
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "" + file, e);
-			cancel(true);
 			return null;
+		} finally {
+			GameDao.getInstance(caller.getContext()).getDatabase().endTransaction();
+			if (root != null) {
+				FileUtil.deleteDirectory(root);
+			}
 		}
 	}
 
@@ -112,11 +118,12 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 
 	@Override
 	protected void onPostExecute(Game game) {
-		progress.cancel();
-
+		if (progress != null) {
+			progress.cancel();
+		}
+		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
 			caller.importEnded(game != null, game);
 		}
 	}
-
 }
