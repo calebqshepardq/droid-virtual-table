@@ -17,6 +17,8 @@ import org.amphiprion.droidvirtualtable.dao.CardPropertyDao;
 import org.amphiprion.droidvirtualtable.dao.CounterDao;
 import org.amphiprion.droidvirtualtable.dao.GameDao;
 import org.amphiprion.droidvirtualtable.dao.GroupDao;
+import org.amphiprion.droidvirtualtable.dao.ScriptDao;
+import org.amphiprion.droidvirtualtable.dao.SectionDao;
 import org.amphiprion.droidvirtualtable.entity.Action;
 import org.amphiprion.droidvirtualtable.entity.CardDefinition;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
@@ -26,6 +28,8 @@ import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.Group;
 import org.amphiprion.droidvirtualtable.entity.Group.Type;
 import org.amphiprion.droidvirtualtable.entity.Group.Visibility;
+import org.amphiprion.droidvirtualtable.entity.Script;
+import org.amphiprion.droidvirtualtable.entity.Section;
 import org.amphiprion.droidvirtualtable.util.FileUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -48,6 +52,20 @@ public class OctgnGameHandler {
 		this.relationships = relationships;
 	}
 
+	/**
+	 * 
+	 * @param gamesDir
+	 *            the directory for all games "DroidVirtualTable/games"
+	 * @param currentDir
+	 *            the directory were the game pack have been unzipped
+	 *            "DroidVirtualTable/import/games/current"
+	 * @param file
+	 *            the game xml file
+	 * @return
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
 	public Game parse(File gamesDir, File currentDir, File file) throws IOException, SAXException, ParserConfigurationException {
 
 		SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -65,6 +83,7 @@ public class OctgnGameHandler {
 
 	class SaxHandler extends DefaultHandler {
 		private File gamesDir;
+		/** The root directory of this "game. DroidVirtualTable/games/<game_id>" */
 		private File rootDir;
 		private File currentDir;
 		private String xmlPath;
@@ -112,7 +131,29 @@ public class OctgnGameHandler {
 					def.setState(DbState.NEW);
 				}
 				def.setFrontImageName(relationships.get(attributes.getValue("front")));
+				File destFile = new File(rootDir, def.getFrontImageName());
+				if (!destFile.exists()) {
+					String d = def.getFrontImageName().substring(0, def.getFrontImageName().lastIndexOf("/"));
+					File destDir = new File(rootDir, d);
+					destDir.mkdirs();
+					File source = new File(currentDir, def.getFrontImageName());
+					if (source.exists()) {
+						FileUtil.copy(source, destFile);
+					}
+				}
+
 				def.setBackImageName(relationships.get(attributes.getValue("back")));
+				destFile = new File(rootDir, def.getBackImageName());
+				if (!destFile.exists()) {
+					String d = def.getBackImageName().substring(0, def.getBackImageName().lastIndexOf("/"));
+					File destDir = new File(rootDir, d);
+					destDir.mkdirs();
+					File source = new File(currentDir, def.getBackImageName());
+					if (source.exists()) {
+						FileUtil.copy(source, destFile);
+					}
+				}
+
 				def.setDefaultDefinition(true);
 				def.setGame(game);
 				def.setName("Default");
@@ -157,10 +198,63 @@ public class OctgnGameHandler {
 				prop.setGame(game);
 				prop.setName(name);
 				prop.setImageName(relationships.get(attributes.getValue("icon")));
+				File destFile = new File(rootDir, prop.getImageName());
+				if (!destFile.exists()) {
+					String d = prop.getImageName().substring(0, prop.getImageName().lastIndexOf("/"));
+					File destDir = new File(rootDir, d);
+					destDir.mkdirs();
+					File source = new File(currentDir, prop.getImageName());
+					if (source.exists()) {
+						FileUtil.copy(source, destFile);
+					}
+				}
+
 				prop.setWidth(32);
 				prop.setHeight(32);
 				CounterDao.getInstance(context).persist(prop);
+				Log.d(ApplicationConstants.PACKAGE, "Counter:" + prop.getName() + "  state:" + prop.getState());
+			} else if (localName.equals("section") && "/game/deck".equals(xmlPath)) {
+				String name = attributes.getValue("name");
+				String groupName = attributes.getValue("group");
 
+				Section prop = null;
+				prop = SectionDao.getInstance(context).getSection(game.getId(), name);
+				if (prop == null) {
+					prop = new Section();
+				}
+
+				prop.setGame(game);
+				prop.setName(name);
+
+				Group startupGroup = GroupDao.getInstance(context).getGroup(game.getId(), groupName);
+				prop.setStartupGroup(startupGroup);
+
+				SectionDao.getInstance(context).persist(prop);
+
+				Log.d(ApplicationConstants.PACKAGE, "Section:" + prop.getName() + "  startup:" + startupGroup.getName() + "   state:" + prop.getState());
+			} else if (localName.equals("script") && "/game/scripts".equals(xmlPath)) {
+				String filename = relationships.get(attributes.getValue("src"));
+				Script prop = null;
+				prop = ScriptDao.getInstance(context).getScript(game.getId(), filename);
+				if (prop == null) {
+					prop = new Script();
+				}
+				prop.setGame(game);
+				prop.setFilename(filename);
+				File destFile = new File(rootDir, filename);
+				if (!destFile.exists()) {
+					String d = filename.substring(0, filename.lastIndexOf("/"));
+					File destDir = new File(rootDir, d);
+					destDir.mkdirs();
+					File source = new File(currentDir, filename);
+					if (source.exists()) {
+						FileUtil.copy(source, destFile);
+					}
+				}
+
+				ScriptDao.getInstance(context).persist(prop);
+
+				Log.d(ApplicationConstants.PACKAGE, "Script:" + prop.getFilename() + "   state:" + prop.getState());
 			}
 
 			xmlPath += "/" + localName;
@@ -180,6 +274,8 @@ public class OctgnGameHandler {
 			action.setDefaultAction("true".equals(attributes.getValue("default")));
 			action.setType(org.amphiprion.droidvirtualtable.entity.Action.Type.GROUP);
 			ActionDao.getInstance(context).persist(action);
+
+			Log.d(ApplicationConstants.PACKAGE, "Action:" + action.getName() + "  grp=" + action.getGroup().getName() + "  state:" + action.getState());
 		}
 
 		private void collectGroupTag(Group.Type type, Attributes attributes) {
@@ -200,10 +296,9 @@ public class OctgnGameHandler {
 			} else {
 				group.setImageName(relationships.get(attributes.getValue("icon")));
 			}
-
-			String d = group.getImageName().substring(0, group.getImageName().lastIndexOf("/"));
 			File destFile = new File(rootDir, group.getImageName());
 			if (!destFile.exists()) {
+				String d = group.getImageName().substring(0, group.getImageName().lastIndexOf("/"));
 				File destDir = new File(rootDir, d);
 				destDir.mkdirs();
 				File source = new File(currentDir, group.getImageName());

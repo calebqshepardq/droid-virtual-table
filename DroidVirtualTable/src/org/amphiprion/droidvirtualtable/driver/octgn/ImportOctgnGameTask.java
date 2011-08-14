@@ -119,7 +119,7 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 	@Override
 	protected void onPostExecute(Game game) {
 		if (progress != null) {
-			progress.cancel();
+			progress.dismiss();
 		}
 		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
