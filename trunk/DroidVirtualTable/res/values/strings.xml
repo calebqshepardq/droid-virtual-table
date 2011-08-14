@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DroidVirtualTable</string>
+
+	<string name="ok">Ok</string>
+	
+    <string name="loading">Loading...</string>
+	<string name="empty_game_list">\nUse the menu to import a new
+		game.\n\nTo execute an action on a game, do a long click on it.</string>
+	
+	<string name="no_driver">No driver available to import this kind of file:\n %1$s</string>
+
+	<string name="import_game">Import a Game</string>
+		<string name="empty_import_game_dir">You must first copy the game file to import in the following directory:\n %1$s</string>
+	<string name="import_game_step">Game Import: %1$s</string>
+	<string name="import_game_step_unzip">Open</string>
+	<string name="import_game_step_ref">Relationship</string>
+	<string name="import_game_step_game">Game Information</string>
+	<string name="import_game_step_card">Card Definition</string>
+	<string name="import_game_step_table">Table</string>
+	<string name="import_game_step_counter">Counters</string>
+	<string name="import_game_step_hand">Hand</string>
+	<string name="import_game_step_group">Group %1$s</string>
+	<string name="import_game_step_section">Deck Sections</string>
+	<string name="import_game_step_scripts">Scripts</string>
+</resources>
