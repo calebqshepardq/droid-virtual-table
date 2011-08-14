@@ -4,14 +4,21 @@
 
 	<string name="ok">Ok</string>
 	
+	<string name="activity_games">Available Game List</string>
+	<string name="activity_sets">Available Sets for %1$s</string>
+
     <string name="loading">Loading...</string>
 	<string name="empty_game_list">\nUse the menu to import a new
-		game.\n\nTo execute an action on a game, do a long click on it.</string>
+		Game.\n\nTo execute an action on a Game, do a long click on it.</string>
+	<string name="empty_set_list">\nUse the menu to import a new
+		Set.\n\nTo execute an action on a Set, do a long click on it.</string>
 	
 	<string name="no_driver">No driver available to import this kind of file:\n %1$s</string>
 
 	<string name="import_game">Import a Game</string>
-		<string name="empty_import_game_dir">You must first copy the game file to import in the following directory:\n %1$s</string>
+	<string name="import_set">Import a Set</string>
+	<string name="empty_import_game_dir">You must first copy the Game file to import in the following directory:\n %1$s</string>
+	<string name="empty_import_set_dir">You must first copy the Set file to import in the following directory:\n %1$s</string>
 	<string name="import_game_step">Game Import: %1$s</string>
 	<string name="import_game_step_unzip">Open</string>
 	<string name="import_game_step_ref">Relationship</string>
@@ -20,7 +27,20 @@
 	<string name="import_game_step_table">Table</string>
 	<string name="import_game_step_counter">Counters</string>
 	<string name="import_game_step_hand">Hand</string>
-	<string name="import_game_step_group">Group %1$s</string>
+	<string name="import_game_step_group">Group</string>
 	<string name="import_game_step_section">Deck Sections</string>
 	<string name="import_game_step_scripts">Scripts</string>
+
+	<string name="import_set_step">Set Import: %1$s</string>
+	<string name="import_set_step_unzip">Open</string>
+	<string name="import_set_step_ref">Relationship</string>
+	<string name="import_set_step_set">Set Information</string>
+	<string name="import_set_step_card">Card #%1$s</string>
+	<string name="import_set_step_marker">Marker</string>
+	
+	
+	<string name="manage_sets">Manage Sets</string>
+	
+	<string name="number_of_sets">Number of Sets: %1$s</string>
+	<string name="number_of_cards">Number of Cards: %1$s</string>
 </resources>

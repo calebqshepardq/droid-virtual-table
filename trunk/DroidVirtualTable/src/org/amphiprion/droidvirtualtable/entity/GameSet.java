@@ -15,32 +15,39 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DroidVirtualTable. If not, see <http://www.gnu.org/licenses/>.
+ * along with DroidVirtualTable.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.amphiprion.droidvirtualtable.entity;
 
 /**
- * This entity represente a Game.
+ * This entity represente a GameSet.
  * 
  * @author amphiprion
  * 
  */
-public class Game extends Entity {
+public class GameSet extends Entity {
+
 	/**
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
-	/** The game name. */
+
+	/** The linked game. */
+	private Game game;
+
+	/** The counter name. */
 	private String name;
 	/** The image name. */
-	private String imageName;
-	/** The player summary. */
-	private String playerSummary;
-	private int gameSetCount;
+	private String ImageName;
+
 	private int cardCount;
 
 	public enum DbField {
-		ID, NAME, IMAGE_NAME, PLAYER_SUMMARY
+		ID, GAME_ID, NAME, IMAGE
+	}
+
+	public GameSet() {
+		super();
 	}
 
 	/**
@@ -49,12 +56,12 @@ public class Game extends Entity {
 	 * @param id
 	 *            the identifier
 	 */
-	public Game(String id) {
+	public GameSet(String id) {
 		super(id);
 	}
 
 	/**
-	 * @return the game name
+	 * @return the group name
 	 */
 	public String getName() {
 		return name;
@@ -62,33 +69,26 @@ public class Game extends Entity {
 
 	/**
 	 * @param name
-	 *            the new game name
+	 *            the new group name
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * @return the image name
-	 */
 	public String getImageName() {
-		return imageName;
+		return ImageName;
 	}
 
-	/**
-	 * @param imageName
-	 *            the new image name
-	 */
 	public void setImageName(String imageName) {
-		this.imageName = imageName;
+		ImageName = imageName;
 	}
 
-	public void setPlayerSummary(String playerSummary) {
-		this.playerSummary = playerSummary;
+	public Game getGame() {
+		return game;
 	}
 
-	public String getPlayerSummary() {
-		return playerSummary;
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 	public int getCardCount() {
@@ -97,13 +97,5 @@ public class Game extends Entity {
 
 	public void setCardCount(int cardCount) {
 		this.cardCount = cardCount;
-	}
-
-	public int getGameSetCount() {
-		return gameSetCount;
-	}
-
-	public void setGameSetCount(int gameSetCount) {
-		this.gameSetCount = gameSetCount;
 	}
 }

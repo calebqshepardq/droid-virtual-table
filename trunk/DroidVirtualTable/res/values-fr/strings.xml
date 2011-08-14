@@ -4,15 +4,23 @@
 
 	<string name="ok">Ok</string>
 
+	<string name="activity_games">Liste des jeux disponibles</string>
+	<string name="activity_sets">Liste des éditions pour %1$s</string>
+	
     <string name="loading">Chargement...</string>
-	<string name="empty_game_list">\nUtiliser le menu pour importer une nouveau
+	<string name="empty_game_list">\nUtiliser le menu pour importer un nouveau
 		jeu.\n\nPour effectuer une action sur un jeu, faire un
+		clic long sur celui-ci.</string>
+	<string name="empty_set_list">\nUtiliser le menu pour importer une nouvelle
+		édition.\n\nPour effectuer une action sur une édition, faire un
 		clic long sur celle-ci.</string>
 	
 	<string name="no_driver">Aucun driver n\'a pu reconnaitre ce type de fichier:\n %1$s</string>
 	
 	<string name="import_game">Importer un jeu</string>
+	<string name="import_set">Importer une édition</string>
 	<string name="empty_import_game_dir">Vous devez d\'abord copier le fichier jeu à importer dans le répertoire suivant:\n %1$s</string>
+	<string name="empty_import_set_dir">Vous devez d\'abord copier le fichier d\'édition à importer dans le répertoire suivant:\n %1$s</string>
 		
 	<string name="import_game_step">Importation du jeu: %1$s</string>
 	<string name="import_game_step_unzip">Ouverture</string>
@@ -26,4 +34,16 @@
 	<string name="import_game_step_section">Sections de Deck</string>
 	<string name="import_game_step_scripts">Scripts</string>
 		
+	<string name="import_set_step">Importation d\'édition: %1$s</string>
+	<string name="import_set_step_unzip">Ouverture</string>
+	<string name="import_set_step_ref">Relations</string>
+	<string name="import_set_step_set">Informations sur l\'édition</string>
+	<string name="import_set_step_card">Carte #%1$s</string>
+	<string name="import_set_step_marker">Marqueur</string>
+
+	<string name="manage_sets">Gérer les éditions</string>
+	
+	<string name="number_of_sets">Nombre d\'éditions: %1$s</string>
+	<string name="number_of_cards">Nombre de cartes: %1$s</string>
+	
 </resources>

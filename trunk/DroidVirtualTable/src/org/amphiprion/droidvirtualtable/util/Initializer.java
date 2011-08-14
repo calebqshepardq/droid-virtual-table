@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.driver.octgn.ImportOctgnGameDriver;
+import org.amphiprion.droidvirtualtable.driver.octgn.ImportOctgnSetDriver;
 
 import android.content.Context;
 import android.os.Environment;
@@ -22,6 +23,7 @@ public class Initializer {
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_DECKS).mkdirs();
 
 			DriverManager.register(new ImportOctgnGameDriver());
+			DriverManager.register(new ImportOctgnSetDriver());
 		}
 	}
 }

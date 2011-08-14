@@ -22,8 +22,10 @@ package org.amphiprion.droidvirtualtable.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.GameSet;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -108,6 +110,9 @@ public class GameDao extends AbstractDao {
 	 */
 	public List<Game> getGames(int pageIndex, int pageSize) {
 		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + "," + Game.DbField.PLAYER_SUMMARY;
+		sql += ", (select count(1) from GAME_SET s where s." + GameSet.DbField.GAME_ID + "=g." + Game.DbField.ID + ")";
+		sql += ", (select count(1) from GAME_SET s, CARD c where s." + GameSet.DbField.GAME_ID + "=g." + Game.DbField.ID + " and c." + Card.DbField.GAME_SET_ID + "=s."
+				+ GameSet.DbField.ID + ")";
 		sql += " FROM GAME g";
 
 		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
@@ -120,6 +125,8 @@ public class GameDao extends AbstractDao {
 				a.setName(cursor.getString(1));
 				a.setImageName(cursor.getString(2));
 				a.setPlayerSummary(cursor.getString(3));
+				a.setGameSetCount(cursor.getInt(4));
+				a.setCardCount(cursor.getInt(5));
 				result.add(a);
 			} while (cursor.moveToNext());
 		}

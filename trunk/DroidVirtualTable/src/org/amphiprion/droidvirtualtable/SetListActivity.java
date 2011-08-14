@@ -24,16 +24,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.droidvirtualtable.adapter.StringAdapter;
-import org.amphiprion.droidvirtualtable.dao.GameDao;
-import org.amphiprion.droidvirtualtable.driver.ImportGameDriver;
-import org.amphiprion.droidvirtualtable.driver.ImportGameListener;
+import org.amphiprion.droidvirtualtable.dao.GameSetDao;
+import org.amphiprion.droidvirtualtable.driver.ImportSetDriver;
+import org.amphiprion.droidvirtualtable.driver.ImportSetListener;
 import org.amphiprion.droidvirtualtable.entity.Game;
-import org.amphiprion.droidvirtualtable.task.LoadGamesTask;
-import org.amphiprion.droidvirtualtable.task.LoadGamesTask.LoadGameListener;
+import org.amphiprion.droidvirtualtable.entity.GameSet;
+import org.amphiprion.droidvirtualtable.task.LoadSetsTask;
+import org.amphiprion.droidvirtualtable.task.LoadSetsTask.LoadSetListener;
 import org.amphiprion.droidvirtualtable.util.DialogUtil;
 import org.amphiprion.droidvirtualtable.util.DriverManager;
 import org.amphiprion.droidvirtualtable.util.Initializer;
-import org.amphiprion.droidvirtualtable.view.GameSummaryView;
+import org.amphiprion.droidvirtualtable.view.GameSetSummaryView;
 import org.amphiprion.droidvirtualtable.view.MyScrollView;
 
 import android.app.Activity;
@@ -57,153 +58,162 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class Home extends Activity {
-	private Game currentGame;
-	private GameListContext gameListContext;
+public class SetListActivity extends Activity {
+	private Game game;
+	private GameSet currentSet;
+	private SetListContext setListContext;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Initializer.init(this);
 
-		setContentView(R.layout.main);
-		showGameList();
+		Intent i = getIntent();
+		game = (Game) i.getSerializableExtra("GAME");
+
+		setContentView(R.layout.set_list);
+
+		TextView tv = (TextView) findViewById(R.id.set_title);
+		tv.setText(getResources().getString(R.string.activity_sets, game.getName()));
+		showSetList();
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.clear();
 
-		if (v instanceof GameSummaryView) {
-			currentGame = ((GameSummaryView) v).getGame();
-			menu.add(1, ApplicationConstants.MENU_ID_MANAGE_SET, 0, R.string.manage_sets);
-		}
+		// if (v instanceof GameSummaryView) {
+		// currentGame = ((GameSummaryView) v).getGame();
+		// menu.add(1, ApplicationConstants.MENU_ID_MANAGE_SET, 0,
+		// R.string.manage_sets);
+		// }
 
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_SET) {
-			Intent i = new Intent(this, SetListActivity.class);
-			i.putExtra("GAME", currentGame);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
-		}
+		// if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_SET) {
+		// Intent i = new Intent(this, EditParty.class);
+		// i.putExtra("GAME", currentGame);
+		// startActivityForResult(i,
+		// ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
+		// }
 
 		return true;
 	}
 
-	public void showGameList() {
-		gameListContext = new GameListContext();
+	public void showSetList() {
+		setListContext = new SetListContext();
 
 		final Rect r = new Rect();
-		gameListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
-		gameListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
+		setListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
+		setListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
 			@Override
 			public void onScrollChanged() {
-				if (!gameListContext.allLoaded && !gameListContext.loading) {
-					LinearLayout ln = (LinearLayout) gameListContext.scrollView.getChildAt(0);
+				if (!setListContext.allLoaded && !setListContext.loading) {
+					LinearLayout ln = (LinearLayout) setListContext.scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
-							gameListContext.loading = true;
-							loadGameNextPage();
+							setListContext.loading = true;
+							loadSetNextPage();
 						}
 					}
 				}
 			}
 		});
-		initGameList();
+		initSetList();
 
 	}
 
-	private void initGameList() {
-		gameListContext.loadedPage = 0;
-		if (gameListContext.games == null) {
-			gameListContext.games = new ArrayList<Game>();
+	private void initSetList() {
+		setListContext.loadedPage = 0;
+		if (setListContext.sets == null) {
+			setListContext.sets = new ArrayList<GameSet>();
 		} else {
-			gameListContext.games.clear();
+			setListContext.sets.clear();
 		}
-		loadGameNextPage();
+		loadSetNextPage();
 	}
 
-	private void loadGameNextPage() {
-		if (gameListContext.loadedPage == 0) {
+	private void loadSetNextPage() {
+		if (setListContext.loadedPage == 0) {
 			// int nb =
 			// GameDao.getInstance(this).getGameCount(gameListContext.collection,
 			// gameListContext.search, gameListContext.query);
 			// Toast.makeText(this,
 			// getResources().getString(R.string.message_nb_result, nb),
 			// Toast.LENGTH_LONG).show();
-			List<Game> newGames = GameDao.getInstance(this).getGames(gameListContext.loadedPage, GameListContext.PAGE_SIZE);
-			importGameEnded(true, newGames);
+			List<GameSet> newGameSets = GameSetDao.getInstance(this).getSets(game, setListContext.loadedPage, GameListContext.PAGE_SIZE);
+			importSetEnded(true, newGameSets);
 		} else {
-			LoadGameListener l = new LoadGameListener() {
+			LoadSetListener l = new LoadSetListener() {
 
 				@Override
-				public void importEnded(boolean succeed, List<Game> games) {
-					importGameEnded(succeed, games);
+				public void importEnded(boolean succeed, List<GameSet> sets) {
+					importSetEnded(succeed, sets);
 				}
 
 				@Override
 				public Context getContext() {
-					return Home.this;
+					return SetListActivity.this;
 				}
 			};
-			gameListContext.task = new LoadGamesTask(l, gameListContext.loadedPage, GameListContext.PAGE_SIZE);
-			gameListContext.task.execute();
+			setListContext.task = new LoadSetsTask(l, game, setListContext.loadedPage, SetListContext.PAGE_SIZE);
+			setListContext.task.execute();
 		}
 	}
 
-	public void importGameEnded(boolean succeed, List<Game> newGames) {
+	public void importSetEnded(boolean succeed, List<GameSet> newSets) {
 		if (succeed) {
-			gameListContext.task = null;
-			if (newGames != null && newGames.size() > 0) {
-				if (newGames.size() == GameListContext.PAGE_SIZE + 1) {
-					newGames.remove(GameListContext.PAGE_SIZE);
-					gameListContext.allLoaded = false;
+			setListContext.task = null;
+			if (newSets != null && newSets.size() > 0) {
+				if (newSets.size() == SetListContext.PAGE_SIZE + 1) {
+					newSets.remove(SetListContext.PAGE_SIZE);
+					setListContext.allLoaded = false;
 				} else {
-					gameListContext.allLoaded = true;
+					setListContext.allLoaded = true;
 				}
 			} else {
-				gameListContext.allLoaded = true;
+				setListContext.allLoaded = true;
 			}
-			if (gameListContext.loadedPage != 0) {
-				addGameElementToList(newGames);
+			if (setListContext.loadedPage != 0) {
+				addSetElementToList(newSets);
 			} else {
-				gameListContext.games = newGames;
-				buildGameList();
+				setListContext.sets = newSets;
+				buildSetList();
 			}
-			gameListContext.loadedPage++;
+			setListContext.loadedPage++;
 		}
-		gameListContext.loading = false;
+		setListContext.loading = false;
 
 	}
 
-	private void buildGameList() {
+	private void buildSetList() {
 
-		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+		LinearLayout ln = (LinearLayout) findViewById(R.id.set_list);
 		ln.removeAllViews();
-		if (gameListContext.games != null && gameListContext.games.size() > 0) {
-			addGameElementToList(gameListContext.games);
+		if (setListContext.sets != null && setListContext.sets.size() > 0) {
+			addSetElementToList(setListContext.sets);
 		} else {
 			TextView tv = new TextView(this);
-			tv.setText(R.string.empty_game_list);
+			tv.setText(R.string.empty_set_list);
 			ln.addView(tv);
 		}
 	}
 
-	private void addGameElementToList(List<Game> newGames) {
-		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+	private void addSetElementToList(List<GameSet> newSets) {
+		LinearLayout ln = (LinearLayout) findViewById(R.id.set_list);
 
-		if (newGames != gameListContext.games) {
-			gameListContext.games.addAll(newGames);
+		if (newSets != setListContext.sets) {
+			setListContext.sets.addAll(newSets);
 			if (ln.getChildCount() > 0) {
 				ln.removeViewAt(ln.getChildCount() - 1);
 			}
 		}
-		for (final Game game : newGames) {
-			GameSummaryView view = new GameSummaryView(this, game);
+		for (final GameSet set : newSets) {
+			GameSetSummaryView view = new GameSetSummaryView(this, set);
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -223,7 +233,7 @@ public class Home extends Activity {
 			ln.addView(view);
 		}
 
-		if (!gameListContext.allLoaded) {
+		if (!setListContext.allLoaded) {
 			ln.addView(getProgressView());
 		}
 	}
@@ -267,7 +277,7 @@ public class Home extends Activity {
 		// R.string.apply_existing_filter);
 		// addAccount.setIcon(R.drawable.search);
 		//
-		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_GAME, 1, R.string.import_game);
+		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_SET, 1, R.string.import_set);
 		search.setIcon(android.R.drawable.ic_menu_upload);
 
 		return true;
@@ -275,38 +285,37 @@ public class Home extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_GAME) {
-			final File importGameDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_GAMES);
-			final String[] files = importGameDir.list();
+		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_SET) {
+			final File importSetDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_SETS);
+			final String[] files = importSetDir.list();
 			if (files == null || files.length == 0) {
-				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_game_dir, ApplicationConstants.DIRECTORY_IMPORT_GAMES));
+				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_set_dir, ApplicationConstants.DIRECTORY_IMPORT_SETS));
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(getResources().getString(R.string.import_game));
-				builder.setAdapter(new StringAdapter(Home.this, files), new DialogInterface.OnClickListener() {
+				builder.setTitle(getResources().getString(R.string.import_set));
+				builder.setAdapter(new StringAdapter(SetListActivity.this, files), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int item) {
 						dialog.dismiss();
-						File file = new File(importGameDir, files[item]);
-						ImportGameDriver task = DriverManager.getImportGameTask(file);
+						File file = new File(importSetDir, files[item]);
+						ImportSetDriver task = DriverManager.getImportSetTask(file);
 						if (task != null) {
-							task.importGame(new ImportGameListener() {
+							task.importSet(new ImportSetListener() {
 
 								@Override
-								public void importEnded(boolean succeed, Game game) {
+								public void importEnded(boolean succeed, GameSet set) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
 									if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
-										initGameList();
+										initSetList();
 									}
-
 								}
 
 								@Override
 								public Context getContext() {
-									return Home.this;
+									return SetListActivity.this;
 								}
-							}, file);
+							}, game, file);
 							// Intent i = new Intent(OperationList.this,
 							// DefineImportParameter.class);
 							// i.putExtra("ACCOUNT", account);
@@ -314,7 +323,7 @@ public class Home extends Activity {
 							// startActivityForResult(i,
 							// ApplicationConstants.ACTIVITY_RETURN_IMPORT_OPERATION);
 						} else {
-							DialogUtil.showConfirmDialog(Home.this, getResources().getString(R.string.no_driver, files[item]));
+							DialogUtil.showConfirmDialog(SetListActivity.this, getResources().getString(R.string.no_driver, files[item]));
 						}
 					}
 				});

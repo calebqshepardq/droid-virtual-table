@@ -15,32 +15,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DroidVirtualTable. If not, see <http://www.gnu.org/licenses/>.
+ * along with DroidVirtualTable.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.amphiprion.droidvirtualtable.entity;
 
 /**
- * This entity represente a Game.
+ * This entity represente a Card.
  * 
  * @author amphiprion
  * 
  */
-public class Game extends Entity {
+public class Card extends Entity {
 	/**
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private GameSet gameSet;
+
 	/** The game name. */
 	private String name;
 	/** The image name. */
 	private String imageName;
-	/** The player summary. */
-	private String playerSummary;
-	private int gameSetCount;
-	private int cardCount;
+
+	private CardDefinition definition;
 
 	public enum DbField {
-		ID, NAME, IMAGE_NAME, PLAYER_SUMMARY
+		ID, GAME_SET_ID, NAME, IMAGE, CARD_DEF_ID
 	}
 
 	/**
@@ -49,7 +50,7 @@ public class Game extends Entity {
 	 * @param id
 	 *            the identifier
 	 */
-	public Game(String id) {
+	public Card(String id) {
 		super(id);
 	}
 
@@ -68,42 +69,27 @@ public class Game extends Entity {
 		this.name = name;
 	}
 
-	/**
-	 * @return the image name
-	 */
 	public String getImageName() {
 		return imageName;
 	}
 
-	/**
-	 * @param imageName
-	 *            the new image name
-	 */
 	public void setImageName(String imageName) {
 		this.imageName = imageName;
 	}
 
-	public void setPlayerSummary(String playerSummary) {
-		this.playerSummary = playerSummary;
+	public GameSet getGameSet() {
+		return gameSet;
 	}
 
-	public String getPlayerSummary() {
-		return playerSummary;
+	public void setGameSet(GameSet gameSet) {
+		this.gameSet = gameSet;
 	}
 
-	public int getCardCount() {
-		return cardCount;
+	public CardDefinition getDefinition() {
+		return definition;
 	}
 
-	public void setCardCount(int cardCount) {
-		this.cardCount = cardCount;
-	}
-
-	public int getGameSetCount() {
-		return gameSetCount;
-	}
-
-	public void setGameSetCount(int gameSetCount) {
-		this.gameSetCount = gameSetCount;
+	public void setDefinition(CardDefinition definition) {
+		this.definition = definition;
 	}
 }
