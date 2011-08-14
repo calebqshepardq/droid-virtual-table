@@ -1,0 +1,191 @@
+package org.amphiprion.droidvirtualtable.driver.octgn;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.amphiprion.droidvirtualtable.ApplicationConstants;
+import org.amphiprion.droidvirtualtable.R;
+import org.amphiprion.droidvirtualtable.dao.CardDefinitionDao;
+import org.amphiprion.droidvirtualtable.dao.CardPropertyDao;
+import org.amphiprion.droidvirtualtable.dao.GameDao;
+import org.amphiprion.droidvirtualtable.dao.GroupDao;
+import org.amphiprion.droidvirtualtable.entity.CardDefinition;
+import org.amphiprion.droidvirtualtable.entity.CardProperty;
+import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
+import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.Group;
+import org.amphiprion.droidvirtualtable.entity.Group.Type;
+import org.amphiprion.droidvirtualtable.entity.Group.Visibility;
+import org.amphiprion.droidvirtualtable.util.FileUtil;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
+import android.content.Context;
+import android.util.Log;
+
+public class OctgnGameHandler {
+	private Game game;
+	private Context context;
+	private ImportOctgnGameTask task;
+	private HashMap<String, String> relationships;
+
+	public OctgnGameHandler(Context context, ImportOctgnGameTask task, HashMap<String, String> relationships) {
+		this.context = context;
+		this.task = task;
+		this.relationships = relationships;
+	}
+
+	public Game parse(File gamesDir, File currentDir, File file) throws IOException, SAXException, ParserConfigurationException {
+
+		SAXParserFactory spf = SAXParserFactory.newInstance();
+		SAXParser sp = spf.newSAXParser();
+		XMLReader xr = sp.getXMLReader();
+
+		SaxHandler myXMLHandler = new SaxHandler(gamesDir, currentDir);
+		xr.setContentHandler(myXMLHandler);
+		FileInputStream fis = new FileInputStream(file);
+		xr.parse(new InputSource(fis));
+
+		return game;
+
+	}
+
+	class SaxHandler extends DefaultHandler {
+		private File gamesDir;
+		private File rootDir;
+		private File currentDir;
+		private String xmlPath;
+		private CardDefinition def;
+		private Group currentGroup;
+
+		public SaxHandler(File gamesDir, File currentDir) {
+			this.gamesDir = gamesDir;
+			this.currentDir = currentDir;
+		}
+
+		@Override
+		public void startDocument() throws SAXException {
+			xmlPath = "";
+		}
+
+		@Override
+		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+			if (localName.equals("game")) {
+				task.publishProgress(R.string.import_game_step_game);
+
+				String name = attributes.getValue("name");
+				String id = attributes.getValue("id");
+				boolean exists = GameDao.getInstance(context).exists(id);
+				game = new Game(id);
+				rootDir = new File(gamesDir, id);
+				rootDir.mkdirs();
+				if (!exists) {
+					game.setState(DbState.NEW);
+				}
+				game.setName(name);
+				game.setImageName("/game.png");
+				File img = new File(rootDir, game.getImageName());
+				if (!img.exists()) {
+					FileUtil.copy(OctgnGameHandler.class.getResourceAsStream("/images/no_game_image.png"), img);
+				}
+				GameDao.getInstance(context).persist(game);
+				Log.d(ApplicationConstants.PACKAGE, "Game:" + game.getName() + "  state:" + game.getState());
+			} else if (localName.equals("card")) {
+				task.publishProgress(R.string.import_game_step_card);
+
+				def = new CardDefinition("1");
+				boolean exists = CardDefinitionDao.getInstance(context).exists(def.getId());
+				if (!exists) {
+					def.setState(DbState.NEW);
+				}
+				def.setFrontImageName(relationships.get(attributes.getValue("front")));
+				def.setBackImageName(relationships.get(attributes.getValue("back")));
+				def.setDefaultDefinition(true);
+				def.setGame(game);
+				def.setName("Default");
+				def.setWidth(Integer.parseInt(attributes.getValue("width")));
+				def.setHeight(Integer.parseInt(attributes.getValue("height")));
+				CardDefinitionDao.getInstance(context).persist(def);
+
+				Log.d(ApplicationConstants.PACKAGE, "Card Def:" + def.getName() + "  state:" + def.getState());
+			} else if (localName.equals("property") && "/game/card".equals(xmlPath)) {
+				String name = attributes.getValue("name");
+				CardProperty prop = null;
+				prop = CardPropertyDao.getInstance(context).getCardProperty(def.getId(), name);
+				if (prop == null) {
+					prop = new CardProperty();
+				}
+
+				prop.setDefinition(def);
+				prop.setName(name);
+				prop.setType(attributes.getValue("type"));
+
+				CardPropertyDao.getInstance(context).persist(prop);
+
+				Log.d(ApplicationConstants.PACKAGE, "Card Prop:" + prop.getName() + "  state:" + prop.getState());
+			} else if (localName.equals("table")) {
+				collectGroupTag(Type.TABLE, attributes);
+			} else if (localName.equals("hand")) {
+				collectGroupTag(Type.HAND, attributes);
+			} else if (localName.equals("group")) {
+				collectGroupTag(Type.PILE, attributes);
+			}
+
+			xmlPath += "/" + localName;
+		}
+
+		private void collectGroupTag(Group.Type type, Attributes attributes) {
+			task.publishProgress(R.string.import_game_step_group);
+
+			String name = attributes.getValue("name");
+			Group group = null;
+			group = GroupDao.getInstance(context).getGroup(game.getId(), name);
+			if (group == null) {
+				group = new Group();
+			}
+			group.setName(name);
+			group.setGame(game);
+			group.setVisibility(Visibility.valueOf(attributes.getValue("visibility")));
+
+			if (type == Type.TABLE) {
+				group.setImageName(relationships.get(attributes.getValue("background")));
+			} else {
+				group.setImageName(relationships.get(attributes.getValue("icon")));
+			}
+
+			String d = group.getImageName().substring(0, group.getImageName().lastIndexOf("/"));
+			File destFile = new File(rootDir, group.getImageName());
+			if (!destFile.exists()) {
+				File destDir = new File(rootDir, d);
+				destDir.mkdirs();
+				File source = new File(currentDir, group.getImageName());
+				if (source.exists()) {
+					FileUtil.copy(source, destFile);
+				}
+			}
+			group.setType(type);
+			group.setWidth(Integer.parseInt(attributes.getValue("width")));
+			group.setHeight(Integer.parseInt(attributes.getValue("height")));
+
+			GroupDao.getInstance(context).persist(group);
+
+			currentGroup = group;
+
+			Log.d(ApplicationConstants.PACKAGE, "Group:" + group.getName() + "  state:" + group.getState());
+		}
+
+		@Override
+		public void endElement(String uri, String localName, String qName) throws SAXException {
+			xmlPath = xmlPath.substring(0, xmlPath.lastIndexOf("/"));
+		}
+	}
+}
