@@ -23,7 +23,7 @@ import java.io.File;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.R;
-import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.GameSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -37,14 +37,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * View used to display a game in the game list.
+ * View used to display a set in the set list.
  * 
  * @author amphiprion
  * 
  */
-public class GameSummaryView extends LinearLayout {
-	/** the linked game. */
-	private Game game;
+public class GameSetSummaryView extends LinearLayout {
+	/** the linked game set. */
+	private GameSet set;
 
 	/**
 	 * Construct an account view.
@@ -54,9 +54,9 @@ public class GameSummaryView extends LinearLayout {
 	 * @param game
 	 *            the game entity
 	 */
-	public GameSummaryView(Context context, Game game) {
+	public GameSetSummaryView(Context context, GameSet set) {
 		super(context);
-		this.game = game;
+		this.set = set;
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_black_background_states));
@@ -68,10 +68,10 @@ public class GameSummaryView extends LinearLayout {
 	}
 
 	/**
-	 * @return the collection
+	 * @return the game set
 	 */
-	public Game getGame() {
-		return game;
+	public GameSet getSet() {
+		return set;
 	}
 
 	/**
@@ -86,7 +86,8 @@ public class GameSummaryView extends LinearLayout {
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
 
-		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_GAMES + "/" + game.getId() + "/" + game.getImageName());
+		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_GAMES + "/" + set.getGame().getId() + "/sets/" + set.getId() + "/"
+				+ set.getImageName());
 		Bitmap bitmap = null;
 		if (f.exists()) {
 			bitmap = BitmapFactory.decodeFile(f.toString());
@@ -113,7 +114,7 @@ public class GameSummaryView extends LinearLayout {
 		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
-		t.setText(game.getName());
+		t.setText(set.getName());
 		t.setTextSize(16);
 		t.setTypeface(Typeface.DEFAULT_BOLD);
 		t.setTextColor(getContext().getResources().getColor(R.color.white));
@@ -123,7 +124,7 @@ public class GameSummaryView extends LinearLayout {
 		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
-		t.setText(getContext().getString(R.string.number_of_sets, game.getGameSetCount()));
+		t.setText(getContext().getString(R.string.number_of_cards, set.getCardCount()));
 		accountLayout.addView(t);
 
 		accountLayout.addView(createParties());
@@ -138,7 +139,7 @@ public class GameSummaryView extends LinearLayout {
 		TextView t = new TextView(getContext());
 		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		t.setLayoutParams(tlp);
-		t.setText(getContext().getString(R.string.number_of_cards, game.getCardCount()));
+		t.setText("blabla");
 		t.setTextSize(10);
 		accountLayout.addView(t);
 

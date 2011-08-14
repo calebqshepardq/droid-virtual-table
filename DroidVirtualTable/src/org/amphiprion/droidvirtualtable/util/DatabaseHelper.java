@@ -21,12 +21,15 @@ package org.amphiprion.droidvirtualtable.util;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.entity.Action;
+import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.CardDefinition;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
-import org.amphiprion.droidvirtualtable.entity.CardType;
+import org.amphiprion.droidvirtualtable.entity.CardValue;
 import org.amphiprion.droidvirtualtable.entity.Counter;
 import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.GameSet;
 import org.amphiprion.droidvirtualtable.entity.Group;
+import org.amphiprion.droidvirtualtable.entity.Marker;
 import org.amphiprion.droidvirtualtable.entity.Script;
 import org.amphiprion.droidvirtualtable.entity.Section;
 
@@ -60,9 +63,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("create table CARD_PROPERTY (" + CardProperty.DbField.ID + " text primary key, " + CardProperty.DbField.CARD_DEF_ID + " text not null,"
 					+ CardProperty.DbField.NAME + " text not null," + CardProperty.DbField.TYPE + " text not null)");
 
-			db.execSQL("create table CARD_TYPE (" + CardType.DbField.ID + " text primary key, " + CardType.DbField.CARD_DEF_ID + " text not null," + CardType.DbField.NAME
-					+ " text not null)");
-
 			db.execSQL("create table COUNTER (" + Counter.DbField.ID + " text primary key, " + Counter.DbField.GAME_ID + " text not null," + Counter.DbField.NAME
 					+ " text not null," + Counter.DbField.IMAGE + " text not null, " + Counter.DbField.WIDTH + " integer, " + Counter.DbField.HEIGHT + " integer)");
 
@@ -79,6 +79,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("create table SCRIPT (" + Script.DbField.ID + " text primary key, " + Script.DbField.GAME_ID + " text not null," + Script.DbField.FILENAME
 					+ " text not null)");
 
+			// Sets
+			db.execSQL("create table GAME_SET (" + GameSet.DbField.ID + " text primary key, " + GameSet.DbField.GAME_ID + " text not null, " + GameSet.DbField.NAME
+					+ " text not null, " + GameSet.DbField.IMAGE + " text) ");
+
+			db.execSQL("create table CARD (" + Card.DbField.ID + " text primary key, " + Card.DbField.GAME_SET_ID + " text not null, " + Card.DbField.NAME + " text not null, "
+					+ Card.DbField.IMAGE + " text, " + Card.DbField.CARD_DEF_ID + " text not null) ");
+
+			db.execSQL("create table MARKER (" + Marker.DbField.ID + " text primary key, " + Marker.DbField.GAME_ID + " text not null," + Marker.DbField.NAME + " text not null,"
+					+ Marker.DbField.IMAGE + " text not null," + Marker.DbField.SHAPE + " text not null," + Group.DbField.WIDTH + " integer, " + Group.DbField.HEIGHT + " integer)");
+
+			db.execSQL("create table CARD_VALUE (" + CardValue.DbField.ID + " text primary key, " + CardValue.DbField.CARD_ID + " text not null," + CardValue.DbField.CARD_PROP_ID
+					+ " text not null," + CardValue.DbField.VALUE + " text)");
+
 			onUpgrade(db, 1, DATABASE_VERSION);
 		} catch (Throwable e) {
 			Log.e(ApplicationConstants.PACKAGE, "", e);
@@ -91,29 +104,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// if (oldVersion == 1) {
-		// db.execSQL("create table SEARCH (" + Search.DbField.ID +
-		// " text not null, " + Search.DbField.NAME + " text not null," +
-		// Search.DbField.MIN_PLAYER + " integer,"
-		// + Search.DbField.MAX_PLAYER + " integer)");
-		// oldVersion++;
-		// }
-		// if (oldVersion == 2) {
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MIN_DIFFICULTY
-		// + " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MAX_DIFFICULTY
-		// + " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MIN_LUCK +
-		// " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MAX_LUCK +
-		// " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MIN_STRATEGY +
-		// " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MAX_STRATEGY +
-		// " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MIN_DIPLOMACY +
-		// " integer default 0");
-		// db.execSQL("ALTER TABLE SEARCH ADD " + Search.DbField.MAX_DIPLOMACY +
-		// " integer default 0");
+		//
+		//
 		// oldVersion++;
 		// }
 	}

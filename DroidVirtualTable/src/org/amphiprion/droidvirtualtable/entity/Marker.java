@@ -20,24 +20,37 @@
 package org.amphiprion.droidvirtualtable.entity;
 
 /**
- * This entity represente a Card type.
+ * This entity represente a Card.
  * 
  * @author amphiprion
  * 
  */
-public class CardType extends Entity {
+public class Marker extends Entity {
 	/**
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/** The linked card definition. */
-	private CardDefinition definition;
-	/** The the propery name. */
+	public enum Shape {
+		RECTANGLE, OVAL
+	}
+
+	private Game game;
+
+	/** The game name. */
 	private String name;
+	/** The image name. */
+	private String imageName;
+	private Shape shape;
+	private int width;
+	private int height;
 
 	public enum DbField {
-		ID, CARD_DEF_ID, NAME
+		ID, GAME_ID, NAME, IMAGE, SHAPE, WIDTH, HEIGHT
+	}
+
+	public Marker() {
+		super();
 	}
 
 	/**
@@ -46,7 +59,7 @@ public class CardType extends Entity {
 	 * @param id
 	 *            the identifier
 	 */
-	public CardType(String id) {
+	public Marker(String id) {
 		super(id);
 	}
 
@@ -65,12 +78,43 @@ public class CardType extends Entity {
 		this.name = name;
 	}
 
-	public CardDefinition getDefinition() {
-		return definition;
+	public String getImageName() {
+		return imageName;
 	}
 
-	public void setDefinition(CardDefinition definition) {
-		this.definition = definition;
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
 	}
 
+	public Game getGame() {
+		return game;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public Shape getShape() {
+		return shape;
+	}
+
+	public void setShape(Shape shape) {
+		this.shape = shape;
+	}
 }
