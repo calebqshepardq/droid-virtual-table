@@ -27,7 +27,6 @@ import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.util.DatabaseHelper;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -41,7 +40,7 @@ public abstract class AbstractDao {
 		this.context = context;
 	}
 
-	protected SQLiteDatabase getDatabase() {
+	public SQLiteDatabase getDatabase() {
 		if (helper == null) {
 			helper = new DatabaseHelper(context);
 			db = helper.getWritableDatabase();
@@ -71,9 +70,6 @@ public abstract class AbstractDao {
 			if (!joinTransaction) {
 				getDatabase().setTransactionSuccessful();
 			}
-		} catch (SQLException e) {
-			Log.e(ApplicationConstants.PACKAGE, "SQL", e);
-			throw e;
 		} finally {
 			if (!joinTransaction) {
 				getDatabase().endTransaction();

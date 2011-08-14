@@ -64,15 +64,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					+ " text not null)");
 
 			db.execSQL("create table COUNTER (" + Counter.DbField.ID + " text primary key, " + Counter.DbField.GAME_ID + " text not null," + Counter.DbField.NAME
-					+ " text not null," + Counter.DbField.IMAGE + " text not null," + Counter.DbField.SHAPE + " text not null, " + Counter.DbField.WIDTH + " integer, "
-					+ Counter.DbField.HEIGHT + " integer)");
+					+ " text not null," + Counter.DbField.IMAGE + " text not null, " + Counter.DbField.WIDTH + " integer, " + Counter.DbField.HEIGHT + " integer)");
 
 			db.execSQL("create table ZONE (" + Group.DbField.ID + " text primary key, " + Group.DbField.GAME_ID + " text not null," + Group.DbField.NAME + " text not null,"
 					+ Group.DbField.IMAGE + " text not null," + Group.DbField.TYPE + " text not null," + Group.DbField.VISIBILITY + " text not null,"
 					+ Group.DbField.VISIBILITY_VALUE + " text, " + Group.DbField.WIDTH + " integer, " + Group.DbField.HEIGHT + " integer)");
 
 			db.execSQL("create table ACTION (" + Action.DbField.ID + " text primary key, " + Action.DbField.GROUP_ID + " text not null," + Action.DbField.NAME + " text not null,"
-					+ Action.DbField.TYPE + " text not null," + Action.DbField.COMMAND + " text not null)");
+					+ Action.DbField.TYPE + " text not null," + Action.DbField.COMMAND + " text not null, " + Action.DbField.IS_DEFAULT + " integer(1) not null)");
 
 			db.execSQL("create table SECTION (" + Section.DbField.ID + " text primary key, " + Section.DbField.GROUP_ID + " text not null," + Section.DbField.NAME
 					+ " text not null)");

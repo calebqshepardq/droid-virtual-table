@@ -11,12 +11,16 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.R;
+import org.amphiprion.droidvirtualtable.dao.ActionDao;
 import org.amphiprion.droidvirtualtable.dao.CardDefinitionDao;
 import org.amphiprion.droidvirtualtable.dao.CardPropertyDao;
+import org.amphiprion.droidvirtualtable.dao.CounterDao;
 import org.amphiprion.droidvirtualtable.dao.GameDao;
 import org.amphiprion.droidvirtualtable.dao.GroupDao;
+import org.amphiprion.droidvirtualtable.entity.Action;
 import org.amphiprion.droidvirtualtable.entity.CardDefinition;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
+import org.amphiprion.droidvirtualtable.entity.Counter;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.Group;
@@ -138,9 +142,44 @@ public class OctgnGameHandler {
 				collectGroupTag(Type.HAND, attributes);
 			} else if (localName.equals("group")) {
 				collectGroupTag(Type.PILE, attributes);
+			} else if (localName.equals("groupaction")) {
+				collectActionTag(Action.Type.GROUP, attributes);
+			} else if (localName.equals("cardaction")) {
+				collectActionTag(Action.Type.CARD, attributes);
+			} else if (localName.equals("counter") && "/game/player".equals(xmlPath)) {
+				String name = attributes.getValue("name");
+				Counter prop = null;
+				prop = CounterDao.getInstance(context).getCounter(game.getId(), name);
+				if (prop == null) {
+					prop = new Counter();
+				}
+
+				prop.setGame(game);
+				prop.setName(name);
+				prop.setImageName(relationships.get(attributes.getValue("icon")));
+				prop.setWidth(32);
+				prop.setHeight(32);
+				CounterDao.getInstance(context).persist(prop);
+
 			}
 
 			xmlPath += "/" + localName;
+		}
+
+		private void collectActionTag(Action.Type type, Attributes attributes) {
+			String name = attributes.getValue("menu");
+			Action action = null;
+			action = ActionDao.getInstance(context).getAction(currentGroup.getId(), name);
+			if (action == null) {
+				action = new Action();
+			}
+
+			action.setGroup(currentGroup);
+			action.setName(name);
+			action.setCommand(attributes.getValue("execute"));
+			action.setDefaultAction("true".equals(attributes.getValue("default")));
+			action.setType(org.amphiprion.droidvirtualtable.entity.Action.Type.GROUP);
+			ActionDao.getInstance(context).persist(action);
 		}
 
 		private void collectGroupTag(Group.Type type, Attributes attributes) {

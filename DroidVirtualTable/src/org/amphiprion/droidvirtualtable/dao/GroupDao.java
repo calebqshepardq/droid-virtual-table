@@ -101,7 +101,7 @@ public class GroupDao extends AbstractDao {
 	 *            the id
 	 * @return the group
 	 */
-	public Group getCardProperty(String id) {
+	public Group getGroup(String id) {
 		String sql = "SELECT " + Group.DbField.ID + "," + Group.DbField.GAME_ID + "," + Group.DbField.NAME + "," + Group.DbField.TYPE + "," + Group.DbField.VISIBILITY + ","
 				+ Group.DbField.VISIBILITY_VALUE + "," + Group.DbField.WIDTH + "," + Group.DbField.HEIGHT + " from ZONE where " + Group.DbField.ID + "=?";
 
