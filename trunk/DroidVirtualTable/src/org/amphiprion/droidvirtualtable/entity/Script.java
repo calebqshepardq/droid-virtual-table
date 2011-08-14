@@ -42,6 +42,10 @@ public class Script extends Entity {
 		ID, GAME_ID, FILENAME
 	}
 
+	public Script() {
+		super();
+	}
+
 	/**
 	 * Default constructor.
 	 * 

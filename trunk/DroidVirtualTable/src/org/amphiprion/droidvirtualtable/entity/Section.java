@@ -31,15 +31,20 @@ public class Section extends Entity {
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/** The linked group. */
-	private Group group;
-
+	/** The linked game. */
+	private Game game;
 	/** The counter name. */
 	private String name;
 
+	/** the startup group for this section of a deck */
+	private Group startupGroup;
+
 	public enum DbField {
-		ID, GROUP_ID, NAME
+		ID, GAME_ID, NAME, GROUP_ID
+	}
+
+	public Section() {
+		super();
 	}
 
 	/**
@@ -67,11 +72,19 @@ public class Section extends Entity {
 		this.name = name;
 	}
 
-	public Group getGroup() {
-		return group;
+	public Group getStartupGroup() {
+		return startupGroup;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setStartupGroup(Group group) {
+		this.startupGroup = group;
+	}
+
+	public Game getGame() {
+		return game;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
 	}
 }

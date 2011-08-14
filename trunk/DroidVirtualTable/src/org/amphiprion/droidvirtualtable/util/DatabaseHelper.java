@@ -73,8 +73,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("create table ACTION (" + Action.DbField.ID + " text primary key, " + Action.DbField.GROUP_ID + " text not null," + Action.DbField.NAME + " text not null,"
 					+ Action.DbField.TYPE + " text not null," + Action.DbField.COMMAND + " text not null, " + Action.DbField.IS_DEFAULT + " integer(1) not null)");
 
-			db.execSQL("create table SECTION (" + Section.DbField.ID + " text primary key, " + Section.DbField.GROUP_ID + " text not null," + Section.DbField.NAME
-					+ " text not null)");
+			db.execSQL("create table SECTION (" + Section.DbField.ID + " text primary key, " + Section.DbField.GAME_ID + " text not null," + Section.DbField.NAME
+					+ " text not null, " + Section.DbField.GROUP_ID + " text not null)");
 
 			db.execSQL("create table SCRIPT (" + Script.DbField.ID + " text primary key, " + Script.DbField.GAME_ID + " text not null," + Script.DbField.FILENAME
 					+ " text not null)");
