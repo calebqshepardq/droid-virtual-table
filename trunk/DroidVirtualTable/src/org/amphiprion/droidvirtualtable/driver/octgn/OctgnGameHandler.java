@@ -106,7 +106,7 @@ public class OctgnGameHandler {
 				task.publishProgress(R.string.import_game_step_game);
 
 				String name = attributes.getValue("name");
-				String id = attributes.getValue("id");
+				String id = attributes.getValue("id").toLowerCase();
 				boolean exists = GameDao.getInstance(context).exists(id);
 				game = new Game(id);
 				rootDir = new File(gamesDir, id);
@@ -197,6 +197,10 @@ public class OctgnGameHandler {
 
 				prop.setGame(game);
 				prop.setName(name);
+
+				String defaultValue = attributes.getValue("default");
+				prop.setDefaultValue(defaultValue != null ? Integer.parseInt(defaultValue) : 0);
+
 				prop.setImageName(relationships.get(attributes.getValue("icon")));
 				File destFile = new File(rootDir, prop.getImageName());
 				if (!destFile.exists()) {
@@ -271,6 +275,9 @@ public class OctgnGameHandler {
 			action.setGroup(currentGroup);
 			action.setName(name);
 			action.setCommand(attributes.getValue("execute"));
+			if (action.getCommand() == null) {
+				action.setCommand(attributes.getValue("batchExecute"));
+			}
 			action.setDefaultAction("true".equals(attributes.getValue("default")));
 			action.setType(org.amphiprion.droidvirtualtable.entity.Action.Type.GROUP);
 			ActionDao.getInstance(context).persist(action);

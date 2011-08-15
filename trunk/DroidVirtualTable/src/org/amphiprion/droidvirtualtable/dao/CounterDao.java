@@ -72,7 +72,7 @@ public class CounterDao extends AbstractDao {
 	public Counter getCounter(String gameId, String name) {
 
 		String sql = "SELECT " + Counter.DbField.ID + "," + Counter.DbField.GAME_ID + "," + Counter.DbField.NAME + "," + Counter.DbField.IMAGE + "," + Counter.DbField.WIDTH + ","
-				+ Counter.DbField.HEIGHT + " from COUNTER where " + Counter.DbField.GAME_ID + "=? and " + Counter.DbField.NAME + "=?";
+				+ Counter.DbField.HEIGHT + "," + Counter.DbField.DEFAULT_VALUE + " from COUNTER where " + Counter.DbField.GAME_ID + "=? and " + Counter.DbField.NAME + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { gameId, name });
 		Counter result = null;
@@ -83,6 +83,7 @@ public class CounterDao extends AbstractDao {
 			a.setImageName(cursor.getString(3));
 			a.setWidth(Integer.parseInt(cursor.getString(4)));
 			a.setHeight(Integer.parseInt(cursor.getString(5)));
+			a.setDefaultValue(Integer.parseInt(cursor.getString(6)));
 			result = a;
 		}
 		cursor.close();
@@ -98,7 +99,7 @@ public class CounterDao extends AbstractDao {
 	 */
 	public Counter getCounter(String id) {
 		String sql = "SELECT " + Counter.DbField.ID + "," + Counter.DbField.GAME_ID + "," + Counter.DbField.NAME + "," + Counter.DbField.IMAGE + "," + Counter.DbField.WIDTH + ","
-				+ Counter.DbField.HEIGHT + " from COUNTER where " + Counter.DbField.ID + "=?";
+				+ Counter.DbField.HEIGHT + "," + Counter.DbField.DEFAULT_VALUE + " from COUNTER where " + Counter.DbField.ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
 		Counter result = null;
@@ -109,6 +110,7 @@ public class CounterDao extends AbstractDao {
 			a.setImageName(cursor.getString(3));
 			a.setWidth(Integer.parseInt(cursor.getString(4)));
 			a.setHeight(Integer.parseInt(cursor.getString(5)));
+			a.setDefaultValue(Integer.parseInt(cursor.getString(6)));
 			result = a;
 		}
 		cursor.close();
@@ -125,8 +127,8 @@ public class CounterDao extends AbstractDao {
 		getDatabase().beginTransaction();
 		try {
 			String sql = "insert into COUNTER (" + Counter.DbField.ID + "," + Counter.DbField.GAME_ID + "," + Counter.DbField.NAME + "," + Counter.DbField.IMAGE + ","
-					+ Counter.DbField.WIDTH + "," + Counter.DbField.HEIGHT + ") values (?,?,?,?,?,?)";
-			Object[] params = new Object[6];
+					+ Counter.DbField.WIDTH + "," + Counter.DbField.HEIGHT + "," + Counter.DbField.DEFAULT_VALUE + ") values (?,?,?,?,?,?,?)";
+			Object[] params = new Object[7];
 
 			params[0] = entity.getId();
 			params[1] = entity.getGame().getId();
@@ -134,6 +136,7 @@ public class CounterDao extends AbstractDao {
 			params[3] = entity.getImageName();
 			params[4] = entity.getWidth();
 			params[5] = entity.getHeight();
+			params[6] = entity.getDefaultValue();
 
 			execSQL(sql, params);
 
@@ -145,14 +148,15 @@ public class CounterDao extends AbstractDao {
 
 	public void update(Counter entity) {
 		String sql = "update COUNTER set " + Counter.DbField.GAME_ID + "=?," + Counter.DbField.NAME + "=?," + Counter.DbField.IMAGE + "=?," + Counter.DbField.WIDTH + "=?,"
-				+ Counter.DbField.HEIGHT + "=? WHERE " + Counter.DbField.ID + "=?";
-		Object[] params = new Object[6];
+				+ Counter.DbField.HEIGHT + "=?," + Counter.DbField.DEFAULT_VALUE + "=? WHERE " + Counter.DbField.ID + "=?";
+		Object[] params = new Object[7];
 		params[0] = entity.getGame().getId();
 		params[1] = entity.getName();
 		params[2] = entity.getImageName();
 		params[3] = entity.getWidth();
 		params[4] = entity.getHeight();
-		params[5] = entity.getId();
+		params[5] = entity.getDefaultValue();
+		params[6] = entity.getId();
 
 		execSQL(sql, params);
 

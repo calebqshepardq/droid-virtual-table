@@ -42,7 +42,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_droidvirtualtable";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -111,11 +111,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// if (oldVersion == 1) {
-		//
-		//
-		// oldVersion++;
-		// }
+		if (oldVersion == 1) {
+			db.execSQL("ALTER TABLE COUNTER ADD " + Counter.DbField.DEFAULT_VALUE + " integer default 0");
+			oldVersion++;
+		}
 	}
 
 }

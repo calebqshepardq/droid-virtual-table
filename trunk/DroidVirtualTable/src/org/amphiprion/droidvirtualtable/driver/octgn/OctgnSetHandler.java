@@ -112,8 +112,8 @@ public class OctgnSetHandler {
 				task.publishProgress(R.string.import_set_step_set);
 
 				String name = attributes.getValue("name");
-				String id = attributes.getValue("id");
-				String gameId = attributes.getValue("gameId");
+				String id = attributes.getValue("id").toLowerCase();
+				String gameId = attributes.getValue("gameId").toLowerCase();
 				if (!gameId.equals(game.getId())) {
 					throw new RuntimeException("This Set is not linked to " + game.getName());
 				}
@@ -138,9 +138,9 @@ public class OctgnSetHandler {
 				task.publishProgress(R.string.import_set_step_card, count);
 
 				String id = attributes.getValue("id");
-				card = CardDao.getInstance(context).getCard(id);
+				card = CardDao.getInstance(context).getCard(id.toLowerCase());
 				if (card == null) {
-					card = new Card(id);
+					card = new Card(id.toLowerCase());
 					card.setState(DbState.NEW);
 				}
 				card.setGameSet(set);
