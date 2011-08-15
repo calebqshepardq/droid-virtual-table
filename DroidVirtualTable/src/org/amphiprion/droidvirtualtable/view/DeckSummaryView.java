@@ -19,9 +19,6 @@
  */
 package org.amphiprion.droidvirtualtable.view;
 
-import java.io.File;
-
-import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.R;
 import org.amphiprion.droidvirtualtable.entity.Deck;
 
@@ -29,7 +26,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -86,15 +82,19 @@ public class DeckSummaryView extends LinearLayout {
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
 
-		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_GAMES + "/" + deck.getGame().getId() + "/"
-				+ deck.getGame().getImageName());
-		Bitmap bitmap = null;
-		if (f.exists()) {
-			bitmap = BitmapFactory.decodeFile(f.toString());
-		}
-		if (bitmap == null) {
-			bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_game_image);
-		}
+		// File f = new File(Environment.getExternalStorageDirectory() + "/" +
+		// ApplicationConstants.DIRECTORY_GAMES + "/" + deck.getGame().getId() +
+		// "/"
+		// + deck.getGame().getImageName());
+		// Bitmap bitmap = null;
+		// if (f.exists()) {
+		// bitmap = BitmapFactory.decodeFile(f.toString());
+		// }
+		// if (bitmap == null) {
+		// bitmap = BitmapFactory.decodeResource(getResources(),
+		// R.drawable.no_deck_image);
+		// }
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_deck_image);
 
 		img.setImageBitmap(bitmap);
 		return img;
