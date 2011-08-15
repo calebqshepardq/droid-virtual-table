@@ -22,10 +22,14 @@ package org.amphiprion.droidvirtualtable.view;
 import java.io.File;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
+import org.amphiprion.droidvirtualtable.DeckListActivity;
 import org.amphiprion.droidvirtualtable.R;
+import org.amphiprion.droidvirtualtable.SetListActivity;
 import org.amphiprion.droidvirtualtable.entity.Game;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -64,6 +68,8 @@ public class GameSummaryView extends LinearLayout {
 		addView(createIcon());
 
 		addView(createAccountLayout());
+		addView(createSetIcon());
+		addView(createDeckIcon());
 
 	}
 
@@ -94,6 +100,47 @@ public class GameSummaryView extends LinearLayout {
 		if (bitmap == null) {
 			bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_game_image);
 		}
+
+		img.setImageBitmap(bitmap);
+		return img;
+	}
+
+	private View createSetIcon() {
+		ImageView img = new ImageView(getContext());
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		imglp.gravity = Gravity.CENTER_VERTICAL;
+		imglp.rightMargin = 5;
+		img.setLayoutParams(imglp);
+		img.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getContext(), SetListActivity.class);
+				i.putExtra("GAME", game);
+				((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
+			}
+		});
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.edit_set);
+
+		img.setImageBitmap(bitmap);
+		return img;
+	}
+
+	private View createDeckIcon() {
+		ImageView img = new ImageView(getContext());
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		imglp.gravity = Gravity.CENTER_VERTICAL;
+		imglp.rightMargin = 5;
+		img.setLayoutParams(imglp);
+		img.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getContext(), DeckListActivity.class);
+				i.putExtra("GAME", game);
+				((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK);
+			}
+		});
+
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.edit_deck);
 
 		img.setImageBitmap(bitmap);
 		return img;
@@ -159,4 +206,5 @@ public class GameSummaryView extends LinearLayout {
 
 		return accountLayout;
 	}
+
 }
