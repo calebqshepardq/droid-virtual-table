@@ -36,6 +36,9 @@ import android.graphics.Typeface;
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,6 +52,7 @@ import android.widget.TextView;
 public class GameSummaryView extends LinearLayout {
 	/** the linked game. */
 	private Game game;
+	private static Interpolator interpolator = new BounceInterpolator();
 
 	/**
 	 * Construct an account view.
@@ -106,7 +110,7 @@ public class GameSummaryView extends LinearLayout {
 	}
 
 	private View createSetIcon() {
-		ImageView img = new ImageView(getContext());
+		final ImageView img = new ImageView(getContext());
 		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
@@ -114,9 +118,18 @@ public class GameSummaryView extends LinearLayout {
 		img.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(getContext(), SetListActivity.class);
-				i.putExtra("GAME", game);
-				((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
+				ScaleAnimation anim = new ScaleAnimation(0.5f, 1, 0.5f, 1, 35f, 35f);
+				anim.setDuration(350);
+				anim.setInterpolator(interpolator);
+				img.startAnimation(anim);
+				postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Intent i = new Intent(getContext(), SetListActivity.class);
+						i.putExtra("GAME", game);
+						((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
+					}
+				}, 400);
 			}
 		});
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.edit_set);
@@ -126,7 +139,7 @@ public class GameSummaryView extends LinearLayout {
 	}
 
 	private View createDeckIcon() {
-		ImageView img = new ImageView(getContext());
+		final ImageView img = new ImageView(getContext());
 		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
@@ -134,9 +147,18 @@ public class GameSummaryView extends LinearLayout {
 		img.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(getContext(), DeckListActivity.class);
-				i.putExtra("GAME", game);
-				((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK);
+				ScaleAnimation anim = new ScaleAnimation(0.5f, 1, 0.5f, 1, 35f, 35f);
+				anim.setDuration(350);
+				anim.setInterpolator(interpolator);
+				img.startAnimation(anim);
+				postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Intent i = new Intent(getContext(), DeckListActivity.class);
+						i.putExtra("GAME", game);
+						((Activity) getContext()).startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK);
+					}
+				}, 400);
 			}
 		});
 
