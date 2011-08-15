@@ -43,9 +43,10 @@ public class Counter extends Entity {
 	private int width;
 	/** The height in millimeter. */
 	private int height;
+	private int defaultValue;
 
 	public enum DbField {
-		ID, GAME_ID, NAME, IMAGE, WIDTH, HEIGHT
+		ID, GAME_ID, NAME, IMAGE, WIDTH, HEIGHT, DEFAULT_VALUE
 	}
 
 	public Counter() {
@@ -109,4 +110,11 @@ public class Counter extends Entity {
 		this.width = width;
 	}
 
+	public int getDefaultValue() {
+		return defaultValue;
+	}
+
+	public void setDefaultValue(int defaultValue) {
+		this.defaultValue = defaultValue;
+	}
 }

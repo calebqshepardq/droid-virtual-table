@@ -127,23 +127,27 @@ public class DeckSummaryView extends LinearLayout {
 		t.setText(getContext().getString(R.string.number_of_cards, deck.getCardCount()));
 		accountLayout.addView(t);
 
-		accountLayout.addView(createParties());
+		// accountLayout.addView(createParties());
 
 		return accountLayout;
 	}
 
-	private View createParties() {
-		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-		accountLayout.setLayoutParams(aclp);
-		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-		t.setLayoutParams(tlp);
-		t.setText("blabla");
-		t.setTextSize(10);
-		accountLayout.addView(t);
-
-		return accountLayout;
-	}
+	// private View createParties() {
+	// LinearLayout accountLayout = new LinearLayout(getContext());
+	// LayoutParams aclp = new
+	// LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+	// android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+	// accountLayout.setLayoutParams(aclp);
+	// TextView t = new TextView(getContext());
+	// LayoutParams tlp = new
+	// LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+	// android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+	// t.setLayoutParams(tlp);
+	// t.setText("blabla");
+	// t.setTextSize(10);
+	// accountLayout.addView(t);
+	//
+	// return accountLayout;
+	// }
 
 }

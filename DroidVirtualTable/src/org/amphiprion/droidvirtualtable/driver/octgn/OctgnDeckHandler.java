@@ -90,7 +90,7 @@ public class OctgnDeckHandler {
 				task.publishProgress(R.string.import_deck_step_deck);
 
 				String name = deckName;
-				String gameId = attributes.getValue("game");
+				String gameId = attributes.getValue("game").toLowerCase();
 				if (!gameId.equals(game.getId())) {
 					throw new RuntimeException("This Deck is not linked to " + game.getName());
 				}
@@ -110,7 +110,7 @@ public class OctgnDeckHandler {
 				task.publishProgress(R.string.import_deck_step_card, count);
 				count++;
 
-				String cardId = attributes.getValue("id");
+				String cardId = attributes.getValue("id").toLowerCase();
 				int quantity = Integer.parseInt(attributes.getValue("qty"));
 
 				Card card = CardDao.getInstance(context).getCard(cardId);
