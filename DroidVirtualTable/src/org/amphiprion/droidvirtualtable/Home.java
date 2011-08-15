@@ -76,7 +76,8 @@ public class Home extends Activity {
 
 		if (v instanceof GameSummaryView) {
 			currentGame = ((GameSummaryView) v).getGame();
-			menu.add(1, ApplicationConstants.MENU_ID_MANAGE_SET, 0, R.string.manage_sets);
+			menu.add(0, ApplicationConstants.MENU_ID_MANAGE_SET, 0, R.string.manage_sets);
+			menu.add(0, ApplicationConstants.MENU_ID_MANAGE_DECK, 1, R.string.manage_decks);
 		}
 
 	}
@@ -88,6 +89,10 @@ public class Home extends Activity {
 			Intent i = new Intent(this, SetListActivity.class);
 			i.putExtra("GAME", currentGame);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_DECK) {
+			Intent i = new Intent(this, DeckListActivity.class);
+			i.putExtra("GAME", currentGame);
+			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK);
 		}
 
 		return true;
@@ -288,7 +293,7 @@ public class Home extends Activity {
 					public void onClick(DialogInterface dialog, int item) {
 						dialog.dismiss();
 						File file = new File(importGameDir, files[item]);
-						ImportGameDriver task = DriverManager.getImportGameTask(file);
+						ImportGameDriver task = DriverManager.getImportGameDriver(file);
 						if (task != null) {
 							task.importGame(new ImportGameListener() {
 
@@ -340,6 +345,11 @@ public class Home extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET) {
+			initGameList();
+		} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK) {
+			initGameList();
+		}
 		//
 		// if (resultCode == RESULT_OK) {
 		// if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY)

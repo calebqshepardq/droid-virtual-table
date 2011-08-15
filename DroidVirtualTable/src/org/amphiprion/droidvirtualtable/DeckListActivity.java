@@ -24,17 +24,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.droidvirtualtable.adapter.StringAdapter;
-import org.amphiprion.droidvirtualtable.dao.GameSetDao;
-import org.amphiprion.droidvirtualtable.driver.ImportSetDriver;
-import org.amphiprion.droidvirtualtable.driver.ImportSetListener;
+import org.amphiprion.droidvirtualtable.dao.DeckDao;
+import org.amphiprion.droidvirtualtable.driver.ImportDeckDriver;
+import org.amphiprion.droidvirtualtable.driver.ImportDeckListener;
+import org.amphiprion.droidvirtualtable.entity.Deck;
 import org.amphiprion.droidvirtualtable.entity.Game;
-import org.amphiprion.droidvirtualtable.entity.GameSet;
-import org.amphiprion.droidvirtualtable.task.LoadSetsTask;
-import org.amphiprion.droidvirtualtable.task.LoadSetsTask.LoadSetListener;
+import org.amphiprion.droidvirtualtable.task.LoadDecksTask;
+import org.amphiprion.droidvirtualtable.task.LoadDecksTask.LoadDeckListener;
 import org.amphiprion.droidvirtualtable.util.DialogUtil;
 import org.amphiprion.droidvirtualtable.util.DriverManager;
 import org.amphiprion.droidvirtualtable.util.Initializer;
-import org.amphiprion.droidvirtualtable.view.GameSetSummaryView;
+import org.amphiprion.droidvirtualtable.view.DeckSummaryView;
 import org.amphiprion.droidvirtualtable.view.MyScrollView;
 
 import android.app.Activity;
@@ -58,10 +58,10 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SetListActivity extends Activity {
+public class DeckListActivity extends Activity {
 	private Game game;
-	private GameSet currentSet;
-	private SetListContext setListContext;
+	private Deck currentDeck;
+	private DeckListContext deckListContext;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +71,10 @@ public class SetListActivity extends Activity {
 		Intent i = getIntent();
 		game = (Game) i.getSerializableExtra("GAME");
 
-		setContentView(R.layout.set_list);
+		setContentView(R.layout.deck_list);
 
-		TextView tv = (TextView) findViewById(R.id.set_title);
-		tv.setText(getResources().getString(R.string.activity_sets, game.getName()));
+		TextView tv = (TextView) findViewById(R.id.deck_title);
+		tv.setText(getResources().getString(R.string.activity_decks, game.getName()));
 		showSetList();
 	}
 
@@ -104,116 +104,117 @@ public class SetListActivity extends Activity {
 	}
 
 	public void showSetList() {
-		setListContext = new SetListContext();
+		deckListContext = new DeckListContext();
 
 		final Rect r = new Rect();
-		setListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
-		setListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
+		deckListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
+		deckListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
 			@Override
 			public void onScrollChanged() {
-				if (!setListContext.allLoaded && !setListContext.loading) {
-					LinearLayout ln = (LinearLayout) setListContext.scrollView.getChildAt(0);
+				if (!deckListContext.allLoaded && !deckListContext.loading) {
+					LinearLayout ln = (LinearLayout) deckListContext.scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
-							setListContext.loading = true;
-							loadSetNextPage();
+							deckListContext.loading = true;
+							loadDeckNextPage();
 						}
 					}
 				}
 			}
 		});
-		initSetList();
+		initDeckList();
 
 	}
 
-	private void initSetList() {
-		setListContext.loadedPage = 0;
-		if (setListContext.sets == null) {
-			setListContext.sets = new ArrayList<GameSet>();
+	private void initDeckList() {
+		deckListContext.loadedPage = 0;
+		if (deckListContext.decks == null) {
+			deckListContext.decks = new ArrayList<Deck>();
 		} else {
-			setListContext.sets.clear();
+			deckListContext.decks.clear();
 		}
-		loadSetNextPage();
+		loadDeckNextPage();
 	}
 
-	private void loadSetNextPage() {
-		if (setListContext.loadedPage == 0) {
+	private void loadDeckNextPage() {
+		if (deckListContext.loadedPage == 0) {
 			// int nb =
 			// GameDao.getInstance(this).getGameCount(gameListContext.collection,
 			// gameListContext.search, gameListContext.query);
 			// Toast.makeText(this,
 			// getResources().getString(R.string.message_nb_result, nb),
 			// Toast.LENGTH_LONG).show();
-			List<GameSet> newGameSets = GameSetDao.getInstance(this).getSets(game, setListContext.loadedPage, SetListContext.PAGE_SIZE);
-			importSetEnded(true, newGameSets);
+			List<Deck> newDecks = DeckDao.getInstance(this).getDecks(game, deckListContext.loadedPage, DeckListContext.PAGE_SIZE);
+			importDeckEnded(true, newDecks);
 		} else {
-			LoadSetListener l = new LoadSetListener() {
+			LoadDeckListener l = new LoadDeckListener() {
 
 				@Override
-				public void importEnded(boolean succeed, List<GameSet> sets) {
-					importSetEnded(succeed, sets);
+				public void importEnded(boolean succeed, List<Deck> decks) {
+					importDeckEnded(succeed, decks);
 				}
 
 				@Override
 				public Context getContext() {
-					return SetListActivity.this;
+					return DeckListActivity.this;
 				}
 			};
-			setListContext.task = new LoadSetsTask(l, game, setListContext.loadedPage, SetListContext.PAGE_SIZE);
-			setListContext.task.execute();
+			deckListContext.task = new LoadDecksTask(l, game, deckListContext.loadedPage, DeckListContext.PAGE_SIZE);
+			deckListContext.task.execute();
 		}
 	}
 
-	public void importSetEnded(boolean succeed, List<GameSet> newSets) {
+	public void importDeckEnded(boolean succeed, List<Deck> newDecks) {
 		if (succeed) {
-			setListContext.task = null;
-			if (newSets != null && newSets.size() > 0) {
-				if (newSets.size() == SetListContext.PAGE_SIZE + 1) {
-					newSets.remove(SetListContext.PAGE_SIZE);
-					setListContext.allLoaded = false;
+			deckListContext.task = null;
+			if (newDecks != null && newDecks.size() > 0) {
+				if (newDecks.size() == DeckListContext.PAGE_SIZE + 1) {
+					newDecks.remove(SetListContext.PAGE_SIZE);
+					deckListContext.allLoaded = false;
 				} else {
-					setListContext.allLoaded = true;
+					deckListContext.allLoaded = true;
 				}
 			} else {
-				setListContext.allLoaded = true;
+				deckListContext.allLoaded = true;
 			}
-			if (setListContext.loadedPage != 0) {
-				addSetElementToList(newSets);
+			if (deckListContext.loadedPage != 0) {
+				addDeckElementToList(newDecks);
 			} else {
-				setListContext.sets = newSets;
-				buildSetList();
+				deckListContext.decks = newDecks;
+				buildDeckList();
 			}
-			setListContext.loadedPage++;
+			deckListContext.loadedPage++;
 		}
-		setListContext.loading = false;
+		deckListContext.loading = false;
 
 	}
 
-	private void buildSetList() {
+	private void buildDeckList() {
 
-		LinearLayout ln = (LinearLayout) findViewById(R.id.set_list);
+		LinearLayout ln = (LinearLayout) findViewById(R.id.deck_list);
 		ln.removeAllViews();
-		if (setListContext.sets != null && setListContext.sets.size() > 0) {
-			addSetElementToList(setListContext.sets);
+		if (deckListContext.decks != null && deckListContext.decks.size() > 0) {
+			addDeckElementToList(deckListContext.decks);
 		} else {
 			TextView tv = new TextView(this);
-			tv.setText(R.string.empty_set_list);
+			tv.setText(R.string.empty_deck_list);
 			ln.addView(tv);
 		}
 	}
 
-	private void addSetElementToList(List<GameSet> newSets) {
-		LinearLayout ln = (LinearLayout) findViewById(R.id.set_list);
+	private void addDeckElementToList(List<Deck> newDecks) {
+		LinearLayout ln = (LinearLayout) findViewById(R.id.deck_list);
 
-		if (newSets != setListContext.sets) {
-			setListContext.sets.addAll(newSets);
+		if (newDecks != deckListContext.decks) {
+			deckListContext.decks.addAll(newDecks);
 			if (ln.getChildCount() > 0) {
 				ln.removeViewAt(ln.getChildCount() - 1);
 			}
 		}
-		for (final GameSet set : newSets) {
-			GameSetSummaryView view = new GameSetSummaryView(this, set);
+		for (final Deck deck : newDecks) {
+			deck.setGame(game);
+			DeckSummaryView view = new DeckSummaryView(this, deck);
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -233,7 +234,7 @@ public class SetListActivity extends Activity {
 			ln.addView(view);
 		}
 
-		if (!setListContext.allLoaded) {
+		if (!deckListContext.allLoaded) {
 			ln.addView(getProgressView());
 		}
 	}
@@ -277,7 +278,7 @@ public class SetListActivity extends Activity {
 		// R.string.apply_existing_filter);
 		// addAccount.setIcon(R.drawable.search);
 		//
-		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_SET, 1, R.string.import_set);
+		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_DECK, 1, R.string.import_deck);
 		search.setIcon(android.R.drawable.ic_menu_upload);
 
 		return true;
@@ -285,35 +286,36 @@ public class SetListActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_SET) {
-			final File importSetDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_SETS);
-			final String[] files = importSetDir.list();
+		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_DECK) {
+			final File importDeckDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_DECKS);
+			final String[] files = importDeckDir.list();
 			if (files == null || files.length == 0) {
-				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_set_dir, ApplicationConstants.DIRECTORY_IMPORT_SETS));
+				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_deck_dir, ApplicationConstants.DIRECTORY_IMPORT_DECKS));
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(getResources().getString(R.string.import_set));
-				builder.setAdapter(new StringAdapter(SetListActivity.this, files), new DialogInterface.OnClickListener() {
+				builder.setTitle(getResources().getString(R.string.import_deck));
+				builder.setAdapter(new StringAdapter(DeckListActivity.this, files), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int item) {
 						dialog.dismiss();
-						File file = new File(importSetDir, files[item]);
-						ImportSetDriver task = DriverManager.getImportSetDriver(file);
+						File file = new File(importDeckDir, files[item]);
+						ImportDeckDriver task = DriverManager.getImportDeckDriver(file);
 						if (task != null) {
-							task.importSet(new ImportSetListener() {
+							task.importDeck(new ImportDeckListener() {
 
 								@Override
-								public void importEnded(boolean succeed, GameSet set) {
+								public void importEnded(boolean succeed, Deck deck) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
 									if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
-										initSetList();
+										initDeckList();
 									}
+
 								}
 
 								@Override
 								public Context getContext() {
-									return SetListActivity.this;
+									return DeckListActivity.this;
 								}
 							}, game, file);
 							// Intent i = new Intent(OperationList.this,
@@ -323,7 +325,7 @@ public class SetListActivity extends Activity {
 							// startActivityForResult(i,
 							// ApplicationConstants.ACTIVITY_RETURN_IMPORT_OPERATION);
 						} else {
-							DialogUtil.showConfirmDialog(SetListActivity.this, getResources().getString(R.string.no_driver, files[item]));
+							DialogUtil.showConfirmDialog(DeckListActivity.this, getResources().getString(R.string.no_driver, files[item]));
 						}
 					}
 				});

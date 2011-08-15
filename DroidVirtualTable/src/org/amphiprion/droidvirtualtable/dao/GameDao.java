@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.droidvirtualtable.entity.Card;
+import org.amphiprion.droidvirtualtable.entity.Deck;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.GameSet;
@@ -113,6 +114,7 @@ public class GameDao extends AbstractDao {
 		sql += ", (select count(1) from GAME_SET s where s." + GameSet.DbField.GAME_ID + "=g." + Game.DbField.ID + ")";
 		sql += ", (select count(1) from GAME_SET s, CARD c where s." + GameSet.DbField.GAME_ID + "=g." + Game.DbField.ID + " and c." + Card.DbField.GAME_SET_ID + "=s."
 				+ GameSet.DbField.ID + ")";
+		sql += ", (select count(1) from DECK d where d." + Deck.DbField.GAME_ID + "=g." + Game.DbField.ID + ")";
 		sql += " FROM GAME g";
 
 		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
@@ -127,6 +129,7 @@ public class GameDao extends AbstractDao {
 				a.setPlayerSummary(cursor.getString(3));
 				a.setGameSetCount(cursor.getInt(4));
 				a.setCardCount(cursor.getInt(5));
+				a.setDeckCount(cursor.getInt(6));
 				result.add(a);
 			} while (cursor.moveToNext());
 		}

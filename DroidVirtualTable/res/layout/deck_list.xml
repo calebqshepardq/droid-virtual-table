@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:background="#CCCCCC">
+	<TextView  android:id="@+id/deck_title" android:textColor="#000000" android:layout_width="wrap_content" android:textSize="16px"
+	android:layout_height="wrap_content" android:text="@string/activity_sets" android:layout_gravity="center_horizontal"></TextView>
+				<view
+	class="org.amphiprion.droidvirtualtable.view.MyScrollView"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:background="#000000"
+		android:id="@+id/scroll_view" android:layout_weight="1">
+		<LinearLayout android:id="@+id/deck_list"
+			android:orientation="vertical" android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+
+		</LinearLayout>
+
+	</view>
+</LinearLayout>
+

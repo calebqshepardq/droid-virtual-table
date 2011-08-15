@@ -26,6 +26,8 @@ import org.amphiprion.droidvirtualtable.entity.CardDefinition;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
 import org.amphiprion.droidvirtualtable.entity.CardValue;
 import org.amphiprion.droidvirtualtable.entity.Counter;
+import org.amphiprion.droidvirtualtable.entity.Deck;
+import org.amphiprion.droidvirtualtable.entity.DeckContent;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.GameSet;
 import org.amphiprion.droidvirtualtable.entity.Group;
@@ -91,6 +93,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			db.execSQL("create table CARD_VALUE (" + CardValue.DbField.ID + " text primary key, " + CardValue.DbField.CARD_ID + " text not null," + CardValue.DbField.CARD_PROP_ID
 					+ " text not null," + CardValue.DbField.VALUE + " text)");
+
+			db.execSQL("create table DECK (" + Deck.DbField.ID + " text primary key, " + Deck.DbField.GAME_ID + " text not null," + Deck.DbField.NAME + " text not null)");
+
+			db.execSQL("create table DECK_CONTENT (" + DeckContent.DbField.ID + " text primary key, " + DeckContent.DbField.DECK_ID + " text not null, "
+					+ DeckContent.DbField.SECTION_ID + " text not null," + DeckContent.DbField.NAME + " text not null," + DeckContent.DbField.CARD_ID + " text not null,"
+					+ DeckContent.DbField.QUANTITY + " integer not null)");
 
 			onUpgrade(db, 1, DATABASE_VERSION);
 		} catch (Throwable e) {
