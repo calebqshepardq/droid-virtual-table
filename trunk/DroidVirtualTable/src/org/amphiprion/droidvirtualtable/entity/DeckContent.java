@@ -15,33 +15,38 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DroidVirtualTable. If not, see <http://www.gnu.org/licenses/>.
+ * along with DroidVirtualTable.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.amphiprion.droidvirtualtable.entity;
 
 /**
- * This entity represente a Game.
+ * This entity represente a Deck content (card and quantity).
  * 
  * @author amphiprion
  * 
  */
-public class Game extends Entity {
+public class DeckContent extends Entity {
 	/**
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
-	/** The game name. */
+
+	private Deck deck;
+
+	private Section section;
+
+	private Card card;
+	/** The deck content name. (card name) */
 	private String name;
-	/** The image name. */
-	private String imageName;
-	/** The player summary. */
-	private String playerSummary;
-	private int gameSetCount;
-	private int cardCount;
-	private int deckCount;
+
+	private int quantity;
 
 	public enum DbField {
-		ID, NAME, IMAGE_NAME, PLAYER_SUMMARY
+		ID, DECK_ID, SECTION_ID, NAME, CARD_ID, QUANTITY
+	}
+
+	public DeckContent() {
+		super();
 	}
 
 	/**
@@ -50,7 +55,7 @@ public class Game extends Entity {
 	 * @param id
 	 *            the identifier
 	 */
-	public Game(String id) {
+	public DeckContent(String id) {
 		super(id);
 	}
 
@@ -69,50 +74,35 @@ public class Game extends Entity {
 		this.name = name;
 	}
 
-	/**
-	 * @return the image name
-	 */
-	public String getImageName() {
-		return imageName;
+	public Deck getDeck() {
+		return deck;
 	}
 
-	/**
-	 * @param imageName
-	 *            the new image name
-	 */
-	public void setImageName(String imageName) {
-		this.imageName = imageName;
+	public void setDeck(Deck deck) {
+		this.deck = deck;
 	}
 
-	public void setPlayerSummary(String playerSummary) {
-		this.playerSummary = playerSummary;
+	public Card getCard() {
+		return card;
 	}
 
-	public String getPlayerSummary() {
-		return playerSummary;
+	public void setCard(Card card) {
+		this.card = card;
 	}
 
-	public int getCardCount() {
-		return cardCount;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setCardCount(int cardCount) {
-		this.cardCount = cardCount;
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
-	public int getGameSetCount() {
-		return gameSetCount;
+	public Section getSection() {
+		return section;
 	}
 
-	public void setGameSetCount(int gameSetCount) {
-		this.gameSetCount = gameSetCount;
-	}
-
-	public int getDeckCount() {
-		return deckCount;
-	}
-
-	public void setDeckCount(int deckCount) {
-		this.deckCount = deckCount;
+	public void setSection(Section section) {
+		this.section = section;
 	}
 }

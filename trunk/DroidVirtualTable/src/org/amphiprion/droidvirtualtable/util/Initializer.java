@@ -3,6 +3,7 @@ package org.amphiprion.droidvirtualtable.util;
 import java.io.File;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
+import org.amphiprion.droidvirtualtable.driver.octgn.ImportOctgnDeckDriver;
 import org.amphiprion.droidvirtualtable.driver.octgn.ImportOctgnGameDriver;
 import org.amphiprion.droidvirtualtable.driver.octgn.ImportOctgnSetDriver;
 
@@ -24,6 +25,7 @@ public class Initializer {
 
 			DriverManager.register(new ImportOctgnGameDriver());
 			DriverManager.register(new ImportOctgnSetDriver());
+			DriverManager.register(new ImportOctgnDeckDriver());
 		}
 	}
 }

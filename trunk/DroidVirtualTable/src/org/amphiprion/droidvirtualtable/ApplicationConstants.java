@@ -33,7 +33,10 @@ public interface ApplicationConstants {
 	public static final int MENU_ID_IMPORT_GAME = 1;
 	public static final int MENU_ID_MANAGE_SET = 2;
 	public static final int MENU_ID_IMPORT_SET = 3;
+	public static final int MENU_ID_MANAGE_DECK = 4;
+	public static final int MENU_ID_IMPORT_DECK = 5;
 
 	public static final int ACTIVITY_RETURN_MANAGE_SET = 1;
+	public static final int ACTIVITY_RETURN_MANAGE_DECK = 2;
 
 }

@@ -4,23 +4,29 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.amphiprion.droidvirtualtable.driver.ImportDeckDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportGameDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportSetDriver;
 
 public class DriverManager {
-	private static List<ImportGameDriver> importGameTasks = new ArrayList<ImportGameDriver>();
-	private static List<ImportSetDriver> importSetTasks = new ArrayList<ImportSetDriver>();
+	private static List<ImportGameDriver> importGameDrivers = new ArrayList<ImportGameDriver>();
+	private static List<ImportSetDriver> importSetDrivers = new ArrayList<ImportSetDriver>();
+	private static List<ImportDeckDriver> importDeckDrivers = new ArrayList<ImportDeckDriver>();
 
-	public static void register(ImportGameDriver task) {
-		importGameTasks.add(task);
+	public static void register(ImportGameDriver driver) {
+		importGameDrivers.add(driver);
 	}
 
-	public static void register(ImportSetDriver task) {
-		importSetTasks.add(task);
+	public static void register(ImportSetDriver driver) {
+		importSetDrivers.add(driver);
 	}
 
-	public static ImportGameDriver getImportGameTask(File file) {
-		for (ImportGameDriver task : importGameTasks) {
+	public static void register(ImportDeckDriver driver) {
+		importDeckDrivers.add(driver);
+	}
+
+	public static ImportGameDriver getImportGameDriver(File file) {
+		for (ImportGameDriver task : importGameDrivers) {
 			if (task.accept(file)) {
 				return task;
 			}
@@ -28,8 +34,8 @@ public class DriverManager {
 		return null;
 	}
 
-	public static ImportSetDriver getImportSetTask(File file) {
-		for (ImportSetDriver task : importSetTasks) {
+	public static ImportSetDriver getImportSetDriver(File file) {
+		for (ImportSetDriver task : importSetDrivers) {
 			if (task.accept(file)) {
 				return task;
 			}
@@ -37,4 +43,12 @@ public class DriverManager {
 		return null;
 	}
 
+	public static ImportDeckDriver getImportDeckDriver(File file) {
+		for (ImportDeckDriver task : importDeckDrivers) {
+			if (task.accept(file)) {
+				return task;
+			}
+		}
+		return null;
+	}
 }
