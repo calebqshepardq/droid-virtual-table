@@ -32,6 +32,7 @@ public class OctgnRelationShipHandler {
 		xr.setContentHandler(myXMLHandler);
 		FileInputStream fis = new FileInputStream(file);
 		xr.parse(new InputSource(fis));
+		fis.close();
 
 		return relationShips;
 	}

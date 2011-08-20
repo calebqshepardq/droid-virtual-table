@@ -76,6 +76,7 @@ public class OctgnGameHandler {
 		xr.setContentHandler(myXMLHandler);
 		FileInputStream fis = new FileInputStream(file);
 		xr.parse(new InputSource(fis));
+		fis.close();
 
 		return game;
 
