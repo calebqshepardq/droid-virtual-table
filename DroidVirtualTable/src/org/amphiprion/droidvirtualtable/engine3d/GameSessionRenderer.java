@@ -31,6 +31,7 @@ import org.amphiprion.droidvirtualtable.R;
 import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.amphiprion.droidvirtualtable.dto.GameTable;
 import org.amphiprion.droidvirtualtable.dto.TableLocation;
+import org.amphiprion.droidvirtualtable.engine3d.mesh.CardMesh;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.Mesh;
 import org.amphiprion.droidvirtualtable.engine3d.shader.Shader;
 import org.amphiprion.droidvirtualtable.engine3d.util.GameTableLoader;
@@ -74,11 +75,15 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	// eye pos
 	private float[] eyePos = { 0.0f, -7.5f, 9f };
+	private float[] lookAt = { 0.0f, -7.5f, 9f };
 	private int angleCameraX;
 	private int angleCameraZ;
 
 	// Shader
 	private Shader shader;
+
+	// TODO temporaire
+	CardMesh cardMesh;
 
 	public GameSessionRenderer(Context context, GameSession gameSession) {
 		this.context = context;
@@ -108,12 +113,10 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// Start using the shader
 		GLES20.glUseProgram(_program);
 		checkGlError("glUseProgram");
-
 		Matrix.setIdentityM(mMMatrix, 0);
 
 		// MMatrix
-		Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], 0, eyePos[1] + (float) Math.cos(angleCameraX * Math.PI / 180),
-				eyePos[2] - (float) Math.sin(angleCameraX * Math.PI / 180), 0f, (float) Math.sin(angleCameraX * Math.PI / 180), (float) Math.cos(angleCameraX * Math.PI / 180));
+		Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], lookAt[0], lookAt[1], lookAt[2], 0, 0, 1);
 
 		Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
@@ -146,9 +149,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// Get buffers from mesh
 		List<Mesh> meshes = gameSession.getGameTable().getMeshes();
 		for (Mesh mesh : meshes) {
-			if ("Cube".equals(mesh.getName())) {
-				// continue;
-			}
+			// mesh = cardMesh;
 			// Log.d(ApplicationConstants.PACKAGE, "MESH:" + mesh.getName());
 			FloatBuffer _vb = mesh.getVerticePropertyBuffer();
 			ShortBuffer _ib = mesh.getIndiceBuffer();
@@ -219,6 +220,11 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		shader = new Shader(R.raw.gouraud_vs, R.raw.gouraud_ps, context, false, 0); // gouraud
 
+		// TODO tempo
+		cardMesh = new CardMesh(gl, "testCarte", gameSession.getGameTable().getTable().getGame().getId() + "/cards/back.jpg", gameSession.getGameTable().getTable().getGame()
+				.getId()
+				+ "/cards/front.jpg", 0.63f, 0.88f, 0.001f);
+
 		// load meshes
 		GameTable gameTable = gameSession.getGameTable();
 		try {
@@ -244,14 +250,14 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		GLES20.glCullFace(GLES20.GL_BACK);
 
 		// light variables
-		float[] lightP = { 0.0f, 0.0f, 16.0f, 1 };
+		float[] lightP = { 0.0f, -7.5f, 16f, 1 };
 		lightPos = lightP;
 
 		float[] lightC = { 1f, 1f, 1f };
 		lightColor = lightC;
 
 		// material properties
-		float[] mA = { 0.2f, 0.2f, 0.2f, 1.0f };
+		float[] mA = { 0.3f, 0.3f, 0.3f, 1.0f };
 		matAmbient = mA;
 
 		float[] mD = { 1f, 1f, 1f, 1f };
@@ -261,5 +267,18 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		matSpecular = mS;
 
 		matShininess = 5f;
+
+		updateCamera();
+	}
+
+	private void updateCamera() {
+		double dist = Math.sqrt(eyePos[0] * eyePos[0] + eyePos[1] * eyePos[1]);
+		eyePos[0] = (float) (dist * Math.sin(angleCameraZ * Math.PI / 180));
+		eyePos[1] = -(float) (dist * Math.cos(angleCameraZ * Math.PI / 180));
+
+		lookAt[0] = eyePos[0] - (float) Math.sin(angleCameraZ * Math.PI / 180) * (float) Math.cos(angleCameraX * Math.PI / 180);
+		lookAt[1] = eyePos[1] + (float) Math.cos(angleCameraZ * Math.PI / 180) * (float) Math.cos(angleCameraX * Math.PI / 180);
+		lookAt[2] = eyePos[2] - (float) Math.sin(angleCameraX * Math.PI / 180);
+
 	}
 }

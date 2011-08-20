@@ -19,7 +19,6 @@
  */
 package org.amphiprion.droidvirtualtable.engine3d;
 
-import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 
@@ -30,7 +29,6 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -81,7 +79,8 @@ public class GameSessionActivity extends Activity {
 	private boolean detectOpenGLES20() {
 		ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		ConfigurationInfo info = am.getDeviceConfigurationInfo();
-		Log.d(ApplicationConstants.PACKAGE, "OpenGL Ver:" + info.getGlEsVersion());
+		// Log.d(ApplicationConstants.PACKAGE, "OpenGL Ver:" +
+		// info.getGlEsVersion());
 		return info.reqGlEsVersion >= 0x20000;
 	}
 
