@@ -30,6 +30,7 @@ public class Mesh {
 
 	private FloatBuffer verticePropertyBuffer;
 	private ShortBuffer indiceBuffer;
+	private int indiceCount;
 
 	public Mesh(String name) {
 		this.name = name;
@@ -53,6 +54,14 @@ public class Mesh {
 
 	public ShortBuffer getIndiceBuffer() {
 		return indiceBuffer;
+	}
+
+	public int getIndiceCount() {
+		return indiceCount;
+	}
+
+	public void setIndiceCount(int indiceCount) {
+		this.indiceCount = indiceCount;
 	}
 
 	public void setIndiceBuffer(ShortBuffer indiceBuffer) {
