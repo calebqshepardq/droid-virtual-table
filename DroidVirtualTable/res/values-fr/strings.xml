@@ -7,6 +7,7 @@
 	<string name="activity_games">Liste des jeux disponibles</string>
 	<string name="activity_sets">Liste des éditions pour %1$s</string>
 	<string name="activity_decks">Liste des decks pour %1$s</string>
+	<string name="activity_tables">Liste des tables pour %1$s</string>
 	
     <string name="loading">Chargement...</string>
 	<string name="empty_game_list">\nUtiliser le menu pour importer un nouveau
@@ -18,15 +19,20 @@
 	<string name="empty_deck_list">\nUtiliser le menu pour importer un nouveau
 		deck.\n\nPour effectuer une action sur un deck, faire un
 		clic long sur celui-ci.</string>
+	<string name="empty_set_table">\nUtiliser le menu pour importer une nouvelle
+		table.\n\nPour effectuer une action sur une table, faire un
+		clic long sur celle-ci.</string>
 	
 	<string name="no_driver">Aucun driver n\'a pu reconnaitre ce type de fichier:\n %1$s</string>
 	
 	<string name="import_game">Importer un jeu</string>
 	<string name="import_set">Importer une édition</string>
 	<string name="import_deck">Importer un deck</string>
+	<string name="import_table">Importer une table</string>
 	<string name="empty_import_game_dir">Vous devez d\'abord copier le fichier jeu à importer dans le répertoire suivant:\n %1$s</string>
 	<string name="empty_import_set_dir">Vous devez d\'abord copier le fichier d\'édition à importer dans le répertoire suivant:\n %1$s</string>
 	<string name="empty_import_deck_dir">Vous devez d\'abord copier le fichier du deck à importer dans le répertoire suivant:\n %1$s</string>
+	<string name="empty_import_table_dir">Vous devez d\'abord copier le fichier de la table à importer dans le répertoire suivant:\n %1$s</string>
 		
 	<string name="import_game_step">Importation du jeu: %1$s</string>
 	<string name="import_game_step_unzip">Ouverture</string>
@@ -51,11 +57,20 @@
 	<string name="import_deck_step_deck">Informations du deck</string>
 	<string name="import_deck_step_card">Carte #%1$s</string>
 	
+	<string name="import_table_step">Importation de la Table: %1$s</string>
+	<string name="import_table_step_unzip">Ouverture</string>
+	<string name="import_table_step_copy">Copie de fichiers: %1$s</string>
+	<string name="import_table_step_table">Informations sur la table</string>
+	<string name="import_table_step_location">Emplacement #%1$s</string>
+	
 	<string name="manage_sets">Gérer les éditions</string>
 	<string name="manage_decks">Gérer les decks</string>
+	<string name="manage_tables">Gérer les tables</string>
 	
 	<string name="number_of_sets">Nombre d\'éditions: %1$s</string>
 	<string name="number_of_cards">Nombre de cartes: %1$s</string>
 	<string name="number_of_decks">Nombre de decks: %1$s</string>
+	<string name="number_of_tables">Nombre de tables: %1$s</string>
+	<string name="number_of_locations">Nombre maximum de joueurs: %1$s</string>
 	
 </resources>

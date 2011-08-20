@@ -29,14 +29,18 @@ public interface ApplicationConstants {
 	public static final String DIRECTORY_IMPORT_GAMES = DIRECTORY + "/import/games";
 	public static final String DIRECTORY_IMPORT_SETS = DIRECTORY + "/import/sets";
 	public static final String DIRECTORY_IMPORT_DECKS = DIRECTORY + "/import/decks";
+	public static final String DIRECTORY_IMPORT_TABLES = DIRECTORY + "/import/tables";
 
 	public static final int MENU_ID_IMPORT_GAME = 1;
 	public static final int MENU_ID_MANAGE_SET = 2;
 	public static final int MENU_ID_IMPORT_SET = 3;
 	public static final int MENU_ID_MANAGE_DECK = 4;
 	public static final int MENU_ID_IMPORT_DECK = 5;
+	public static final int MENU_ID_MANAGE_TABLE = 6;
+	public static final int MENU_ID_IMPORT_TABLE = 7;
 
 	public static final int ACTIVITY_RETURN_MANAGE_SET = 1;
 	public static final int ACTIVITY_RETURN_MANAGE_DECK = 2;
+	public static final int ACTIVITY_RETURN_MANAGE_TABLE = 3;
 
 }

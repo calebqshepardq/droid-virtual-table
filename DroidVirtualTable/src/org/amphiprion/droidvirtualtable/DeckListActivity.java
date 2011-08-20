@@ -75,7 +75,7 @@ public class DeckListActivity extends Activity {
 
 		TextView tv = (TextView) findViewById(R.id.deck_title);
 		tv.setText(getResources().getString(R.string.activity_decks, game.getName()));
-		showSetList();
+		showDeckList();
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class DeckListActivity extends Activity {
 		return true;
 	}
 
-	public void showSetList() {
+	public void showDeckList() {
 		deckListContext = new DeckListContext();
 
 		final Rect r = new Rect();
@@ -170,7 +170,7 @@ public class DeckListActivity extends Activity {
 			deckListContext.task = null;
 			if (newDecks != null && newDecks.size() > 0) {
 				if (newDecks.size() == DeckListContext.PAGE_SIZE + 1) {
-					newDecks.remove(SetListContext.PAGE_SIZE);
+					newDecks.remove(DeckListContext.PAGE_SIZE);
 					deckListContext.allLoaded = false;
 				} else {
 					deckListContext.allLoaded = true;

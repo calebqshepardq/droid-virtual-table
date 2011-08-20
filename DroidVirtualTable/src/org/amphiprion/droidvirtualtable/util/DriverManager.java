@@ -7,11 +7,13 @@ import java.util.List;
 import org.amphiprion.droidvirtualtable.driver.ImportDeckDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportGameDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportSetDriver;
+import org.amphiprion.droidvirtualtable.driver.ImportTableDriver;
 
 public class DriverManager {
 	private static List<ImportGameDriver> importGameDrivers = new ArrayList<ImportGameDriver>();
 	private static List<ImportSetDriver> importSetDrivers = new ArrayList<ImportSetDriver>();
 	private static List<ImportDeckDriver> importDeckDrivers = new ArrayList<ImportDeckDriver>();
+	private static List<ImportTableDriver> importTableDrivers = new ArrayList<ImportTableDriver>();
 
 	public static void register(ImportGameDriver driver) {
 		importGameDrivers.add(driver);
@@ -23,6 +25,10 @@ public class DriverManager {
 
 	public static void register(ImportDeckDriver driver) {
 		importDeckDrivers.add(driver);
+	}
+
+	public static void register(ImportTableDriver driver) {
+		importTableDrivers.add(driver);
 	}
 
 	public static ImportGameDriver getImportGameDriver(File file) {
@@ -45,6 +51,15 @@ public class DriverManager {
 
 	public static ImportDeckDriver getImportDeckDriver(File file) {
 		for (ImportDeckDriver task : importDeckDrivers) {
+			if (task.accept(file)) {
+				return task;
+			}
+		}
+		return null;
+	}
+
+	public static ImportTableDriver getImportTableDriver(File file) {
+		for (ImportTableDriver task : importTableDrivers) {
 			if (task.accept(file)) {
 				return task;
 			}
