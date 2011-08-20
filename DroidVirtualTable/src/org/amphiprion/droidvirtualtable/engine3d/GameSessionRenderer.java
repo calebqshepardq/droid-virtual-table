@@ -19,8 +19,6 @@
  */
 package org.amphiprion.droidvirtualtable.engine3d;
 
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -63,6 +61,28 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	private float[] mMMatrix = new float[16]; // rotation
 	private float[] mVMatrix = new float[16]; // modelview
 	private float[] normalMatrix = new float[16]; // modelview normal
+	/**
+	 * Stores a copy of the model matrix specifically for the light position.
+	 */
+	private float[] mLightModelMatrix = new float[16];
+	/**
+	 * Used to hold a light centered on the origin in model space. We need a 4th
+	 * coordinate so we can get translations to work when we multiply this by
+	 * our transformation matrices.
+	 */
+	private final float[] mLightPosInModelSpace = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	/**
+	 * Used to hold the current position of the light in world space (after
+	 * transformation via model matrix).
+	 */
+	private final float[] mLightPosInWorldSpace = new float[4];
+
+	/**
+	 * Used to hold the transformed position of the light in eye space (after
+	 * transformation via modelview matrix)
+	 */
+	private final float[] mLightPosInEyeSpace = new float[4];
 
 	// light parameters
 	private float[] lightPos;
@@ -113,87 +133,41 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// Start using the shader
 		GLES20.glUseProgram(_program);
 		checkGlError("glUseProgram");
-		Matrix.setIdentityM(mMMatrix, 0);
+
+		angleCameraZ++;
+		updateCamera();
 
 		// MMatrix
 		Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], lookAt[0], lookAt[1], lookAt[2], 0, 0, 1);
 
-		Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
-		Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
+		// Calculate position of the light. Rotate and then push into the
+		// distance.
+		Matrix.setIdentityM(mLightModelMatrix, 0);
+		Matrix.translateM(mLightModelMatrix, 0, lightPos[0], lightPos[1], lightPos[2]);
 
-		// send to the shader
-		GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(_program, "uMVPMatrix"), 1, false, mMVPMatrix, 0);
-
-		// Create the normal modelview matrix
-		// Invert + transpose of mvpmatrix
-		Matrix.invertM(normalMatrix, 0, mMVPMatrix, 0);
-		Matrix.transposeM(normalMatrix, 0, normalMatrix, 0);
-
-		// send to the shader
-		GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(_program, "normalMatrix"), 1, false, mMVPMatrix, 0);
-
-		// lighting variables // send to shaders
-		GLES20.glUniform4fv(GLES20.glGetUniformLocation(_program, "lightPos"), 1, lightPos, 0);
-		GLES20.glUniform4fv(GLES20.glGetUniformLocation(_program, "lightColor"), 1, lightColor, 0);
-
-		// material
-		GLES20.glUniform4fv(GLES20.glGetUniformLocation(_program, "matAmbient"), 1, matAmbient, 0);
-		GLES20.glUniform4fv(GLES20.glGetUniformLocation(_program, "matDiffuse"), 1, matDiffuse, 0);
-		GLES20.glUniform4fv(GLES20.glGetUniformLocation(_program, "matSpecular"), 1, matSpecular, 0);
-		GLES20.glUniform1f(GLES20.glGetUniformLocation(_program, "matShininess"), matShininess);
-
-		// eye position
-		GLES20.glUniform3fv(GLES20.glGetUniformLocation(_program, "eyePos"), 1, eyePos, 0);
+		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
+		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mVMatrix, 0, mLightPosInWorldSpace, 0);
+		// TODO a voir pourquoi elle bouge avec la camera (en attendant histoire
+		// de la mettre au bon endroit)
+		mLightPosInEyeSpace[0] = lightPos[0];
+		mLightPosInEyeSpace[1] = lightPos[1];
+		mLightPosInEyeSpace[2] = lightPos[2];
+		mLightPosInEyeSpace[3] = lightPos[3];
 
 		/*** DRAWING OBJECT **/
 		// Get buffers from mesh
 		List<Mesh> meshes = gameSession.getGameTable().getMeshes();
+
 		for (Mesh mesh : meshes) {
-			// mesh = cardMesh;
-			// Log.d(ApplicationConstants.PACKAGE, "MESH:" + mesh.getName());
-			FloatBuffer _vb = mesh.getVerticePropertyBuffer();
-			ShortBuffer _ib = mesh.getIndiceBuffer();
+			mesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, _program, eyePos);
+		}
+		for (int i = 0; i < 160; i++) {
+			cardMesh.x = 4.443f;
+			cardMesh.y = -0.549f;
+			cardMesh.z = 0.202f + 0.005f * i + 0.005f / 2;
 
-			// Vertex buffer
-
-			// the vertex coordinates
-			_vb.position(TRIANGLE_VERTICES_DATA_POS_OFFSET);
-			GLES20.glVertexAttribPointer(GLES20.glGetAttribLocation(_program, "aPosition"), 3, GLES20.GL_FLOAT, false, TRIANGLE_VERTICES_DATA_STRIDE_BYTES, _vb);
-			GLES20.glEnableVertexAttribArray(GLES20.glGetAttribLocation(_program, "aPosition"));
-
-			// the normal info
-			_vb.position(TRIANGLE_VERTICES_DATA_NOR_OFFSET);
-			GLES20.glVertexAttribPointer(GLES20.glGetAttribLocation(_program, "aNormal"), 3, GLES20.GL_FLOAT, false, TRIANGLE_VERTICES_DATA_STRIDE_BYTES, _vb);
-			GLES20.glEnableVertexAttribArray(GLES20.glGetAttribLocation(_program, "aNormal"));
-
-			// Texture info
-
-			// bind textures
-			if (mesh.getTexture() != null) {// && enableTexture) {
-				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mesh.getTexture().textureId);
-				GLES20.glUniform1i(GLES20.glGetUniformLocation(_program, "texture1"), 0);
-			}
-
-			// enable texturing? [fix - sending float is waste]
-			GLES20.glUniform1f(GLES20.glGetUniformLocation(_program, "hasTexture")/*
-																				 * shader
-																				 * .
-																				 * hasTextureHandle
-																				 */, 2.0f);
-
-			// texture coordinates
-			_vb.position(TRIANGLE_VERTICES_DATA_TEX_OFFSET);
-			GLES20.glVertexAttribPointer(GLES20.glGetAttribLocation(_program, "textureCoord")/*
-																							 * shader
-																							 * .
-																							 * maTextureHandle
-																							 */, 2, GLES20.GL_FLOAT, false, TRIANGLE_VERTICES_DATA_STRIDE_BYTES, _vb);
-			GLES20.glEnableVertexAttribArray(GLES20.glGetAttribLocation(_program, "textureCoord"));// GLES20.glEnableVertexAttribArray(shader.maTextureHandle);
-
-			// Draw with indices
-			GLES20.glDrawElements(GLES20.GL_TRIANGLES, mesh.getIndiceCount(), GLES20.GL_UNSIGNED_SHORT, _ib);
-			checkGlError("glDrawElements");
+			cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, _program,
+					eyePos);
 		}
 
 		/** END DRAWING OBJECT ***/
@@ -223,7 +197,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// TODO tempo
 		cardMesh = new CardMesh(gl, "testCarte", gameSession.getGameTable().getTable().getGame().getId() + "/cards/back.jpg", gameSession.getGameTable().getTable().getGame()
 				.getId()
-				+ "/cards/front.jpg", 0.63f, 0.88f, 0.001f);
+				+ "/cards/front.jpg", 0.63f, 0.88f, 0.005f);
 
 		// load meshes
 		GameTable gameTable = gameSession.getGameTable();
@@ -257,7 +231,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		lightColor = lightC;
 
 		// material properties
-		float[] mA = { 0.3f, 0.3f, 0.3f, 1.0f };
+		float[] mA = { 0.5f, 0.5f, 0.5f, 1.0f };
 		matAmbient = mA;
 
 		float[] mD = { 1f, 1f, 1f, 1f };
