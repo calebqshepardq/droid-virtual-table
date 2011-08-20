@@ -39,6 +39,7 @@ public class Game extends Entity {
 	private int gameSetCount;
 	private int cardCount;
 	private int deckCount;
+	private int tableCount;
 
 	public enum DbField {
 		ID, NAME, IMAGE_NAME, PLAYER_SUMMARY
@@ -114,5 +115,13 @@ public class Game extends Entity {
 
 	public void setDeckCount(int deckCount) {
 		this.deckCount = deckCount;
+	}
+
+	public int getTableCount() {
+		return tableCount;
+	}
+
+	public void setTableCount(int tableCount) {
+		this.tableCount = tableCount;
 	}
 }

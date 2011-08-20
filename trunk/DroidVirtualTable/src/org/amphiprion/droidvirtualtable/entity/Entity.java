@@ -45,7 +45,7 @@ public class Entity implements Serializable {
 	}
 
 	Entity() {
-		this(UUID.randomUUID().toString());
+		this(UUID.randomUUID().toString().toLowerCase());
 		state = DbState.NEW;
 	}
 

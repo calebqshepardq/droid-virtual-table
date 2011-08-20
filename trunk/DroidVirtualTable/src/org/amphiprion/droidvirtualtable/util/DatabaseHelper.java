@@ -34,6 +34,7 @@ import org.amphiprion.droidvirtualtable.entity.Group;
 import org.amphiprion.droidvirtualtable.entity.Marker;
 import org.amphiprion.droidvirtualtable.entity.Script;
 import org.amphiprion.droidvirtualtable.entity.Section;
+import org.amphiprion.droidvirtualtable.entity.Table;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -42,7 +43,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_droidvirtualtable";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -113,6 +114,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if (oldVersion == 1) {
 			db.execSQL("ALTER TABLE COUNTER ADD " + Counter.DbField.DEFAULT_VALUE + " integer default 0");
+			oldVersion++;
+		}
+		if (oldVersion == 2) {
+			db.execSQL("create table BOARD_TABLE (" + Table.DbField.ID + " text primary key, " + Table.DbField.GAME_ID + " text not null," + Table.DbField.NAME + " text not null,"
+					+ Table.DbField.LOCATION_COUNT + " integer not null)");
 			oldVersion++;
 		}
 	}

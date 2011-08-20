@@ -7,6 +7,7 @@
 	<string name="activity_games">Available Game List</string>
 	<string name="activity_sets">Available Sets for %1$s</string>
 	<string name="activity_decks">Available Decks for %1$s</string>
+	<string name="activity_tables">Available Decks for %1$s</string>
 
     <string name="loading">Loading...</string>
 	<string name="empty_game_list">\nUse the menu to import a new
@@ -15,15 +16,19 @@
 		Set.\n\nTo execute an action on a Set, do a long click on it.</string>
 	<string name="empty_deck_list">\nUse the menu to import a new
 		Deck.\n\nTo execute an action on a Deck, do a long click on it.</string>
+	<string name="empty_table_list">\nUse the menu to import a new
+		Table.\n\nTo execute an action on a Table, do a long click on it.</string>
 	
 	<string name="no_driver">No driver available to import this kind of file:\n %1$s</string>
 
 	<string name="import_game">Import a Game</string>
 	<string name="import_set">Import a Set</string>
 	<string name="import_deck">Import a Deck</string>
+	<string name="import_table">Import a Table</string>
 	<string name="empty_import_game_dir">You must first copy the Game file to import in the following directory:\n %1$s</string>
 	<string name="empty_import_set_dir">You must first copy the Set file to import in the following directory:\n %1$s</string>
 	<string name="empty_import_deck_dir">You must first copy the Deck file to import in the following directory:\n %1$s</string>
+	<string name="empty_import_table_dir">You must first copy the Table file to import in the following directory:\n %1$s</string>
 
 	<string name="import_game_step">Game Import: %1$s</string>
 	<string name="import_game_step_unzip">Open</string>
@@ -47,11 +52,21 @@
 	<string name="import_deck_step">Deck Import: %1$s</string>
 	<string name="import_deck_step_deck">Deck Information</string>
 	<string name="import_deck_step_card">Card #%1$s</string>
+
+	<string name="import_table_step">Table Import: %1$s</string>
+	<string name="import_table_step_unzip">Open</string>
+	<string name="import_table_step_copy">Copy files: %1$s</string>
+	<string name="import_table_step_table">Table Information</string>
+	<string name="import_table_step_location">Location #%1$s</string>
+
 	
 	<string name="manage_sets">Manage Sets</string>
 	<string name="manage_decks">Manage Decks</string>
+	<string name="manage_tables">Manage Tables</string>
 	
 	<string name="number_of_sets">Number of Sets: %1$s</string>
 	<string name="number_of_cards">Number of Cards: %1$s</string>
 	<string name="number_of_decks">Number of Decks: %1$s</string>
+	<string name="number_of_tables">Number of Tables: %1$s</string>
+	<string name="number_of_locations">Maximum Number of Players: %1$s</string>
 </resources>

@@ -24,17 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.droidvirtualtable.adapter.StringAdapter;
-import org.amphiprion.droidvirtualtable.dao.GameDao;
-import org.amphiprion.droidvirtualtable.driver.ImportGameDriver;
-import org.amphiprion.droidvirtualtable.driver.ImportGameListener;
+import org.amphiprion.droidvirtualtable.dao.TableDao;
+import org.amphiprion.droidvirtualtable.driver.ImportTableDriver;
+import org.amphiprion.droidvirtualtable.driver.ImportTableListener;
 import org.amphiprion.droidvirtualtable.entity.Game;
-import org.amphiprion.droidvirtualtable.task.LoadGamesTask;
-import org.amphiprion.droidvirtualtable.task.LoadGamesTask.LoadGameListener;
+import org.amphiprion.droidvirtualtable.entity.Table;
+import org.amphiprion.droidvirtualtable.task.LoadTablesTask;
+import org.amphiprion.droidvirtualtable.task.LoadTablesTask.LoadTableListener;
 import org.amphiprion.droidvirtualtable.util.DialogUtil;
 import org.amphiprion.droidvirtualtable.util.DriverManager;
 import org.amphiprion.droidvirtualtable.util.Initializer;
-import org.amphiprion.droidvirtualtable.view.GameSummaryView;
 import org.amphiprion.droidvirtualtable.view.MyScrollView;
+import org.amphiprion.droidvirtualtable.view.TableSummaryView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -57,163 +58,163 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class Home extends Activity {
-	private Game currentGame;
-	private GameListContext gameListContext;
+public class TableListActivity extends Activity {
+	private Game game;
+	private Table currentTable;
+	private TableListContext tableListContext;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Initializer.init(this);
 
-		setContentView(R.layout.main);
-		showGameList();
+		Intent i = getIntent();
+		game = (Game) i.getSerializableExtra("GAME");
+
+		setContentView(R.layout.table_list);
+
+		TextView tv = (TextView) findViewById(R.id.table_title);
+		tv.setText(getResources().getString(R.string.activity_tables, game.getName()));
+		showTableList();
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.clear();
 
-		if (v instanceof GameSummaryView) {
-			currentGame = ((GameSummaryView) v).getGame();
-			menu.add(0, ApplicationConstants.MENU_ID_MANAGE_SET, 0, R.string.manage_sets);
-			menu.add(0, ApplicationConstants.MENU_ID_MANAGE_DECK, 1, R.string.manage_decks);
-			menu.add(0, ApplicationConstants.MENU_ID_MANAGE_TABLE, 2, R.string.manage_tables);
-		}
+		// if (v instanceof GameSummaryView) {
+		// currentGame = ((GameSummaryView) v).getGame();
+		// menu.add(1, ApplicationConstants.MENU_ID_MANAGE_SET, 0,
+		// R.string.manage_sets);
+		// }
 
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_SET) {
-			Intent i = new Intent(this, SetListActivity.class);
-			i.putExtra("GAME", currentGame);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET);
-		} else if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_DECK) {
-			Intent i = new Intent(this, DeckListActivity.class);
-			i.putExtra("GAME", currentGame);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK);
-		} else if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_TABLE) {
-			Intent i = new Intent(this, TableListActivity.class);
-			i.putExtra("GAME", currentGame);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_MANAGE_TABLE);
-		}
+		// if (item.getItemId() == ApplicationConstants.MENU_ID_MANAGE_SET) {
+		// Intent i = new Intent(this, EditParty.class);
+		// i.putExtra("GAME", currentGame);
+		// startActivityForResult(i,
+		// ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
+		// }
 
 		return true;
 	}
 
-	public void showGameList() {
-		gameListContext = new GameListContext();
+	public void showTableList() {
+		tableListContext = new TableListContext();
 
 		final Rect r = new Rect();
-		gameListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
-		gameListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
+		tableListContext.scrollView = (MyScrollView) findViewById(R.id.scroll_view);
+		tableListContext.scrollView.setOnScrollChanged(new OnScrollChangedListener() {
 			@Override
 			public void onScrollChanged() {
-				if (!gameListContext.allLoaded && !gameListContext.loading) {
-					LinearLayout ln = (LinearLayout) gameListContext.scrollView.getChildAt(0);
+				if (!tableListContext.allLoaded && !tableListContext.loading) {
+					LinearLayout ln = (LinearLayout) tableListContext.scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
-							gameListContext.loading = true;
-							loadGameNextPage();
+							tableListContext.loading = true;
+							loadTableNextPage();
 						}
 					}
 				}
 			}
 		});
-		initGameList();
+		initTableList();
 
 	}
 
-	private void initGameList() {
-		gameListContext.loadedPage = 0;
-		if (gameListContext.games == null) {
-			gameListContext.games = new ArrayList<Game>();
+	private void initTableList() {
+		tableListContext.loadedPage = 0;
+		if (tableListContext.tables == null) {
+			tableListContext.tables = new ArrayList<Table>();
 		} else {
-			gameListContext.games.clear();
+			tableListContext.tables.clear();
 		}
-		loadGameNextPage();
+		loadTableNextPage();
 	}
 
-	private void loadGameNextPage() {
-		if (gameListContext.loadedPage == 0) {
+	private void loadTableNextPage() {
+		if (tableListContext.loadedPage == 0) {
 			// int nb =
 			// GameDao.getInstance(this).getGameCount(gameListContext.collection,
 			// gameListContext.search, gameListContext.query);
 			// Toast.makeText(this,
 			// getResources().getString(R.string.message_nb_result, nb),
 			// Toast.LENGTH_LONG).show();
-			List<Game> newGames = GameDao.getInstance(this).getGames(gameListContext.loadedPage, GameListContext.PAGE_SIZE);
-			importGameEnded(true, newGames);
+			List<Table> newTables = TableDao.getInstance(this).getTables(game, tableListContext.loadedPage, TableListContext.PAGE_SIZE);
+			importTableEnded(true, newTables);
 		} else {
-			LoadGameListener l = new LoadGameListener() {
+			LoadTableListener l = new LoadTableListener() {
 
 				@Override
-				public void importEnded(boolean succeed, List<Game> games) {
-					importGameEnded(succeed, games);
+				public void importEnded(boolean succeed, List<Table> tables) {
+					importTableEnded(succeed, tables);
 				}
 
 				@Override
 				public Context getContext() {
-					return Home.this;
+					return TableListActivity.this;
 				}
 			};
-			gameListContext.task = new LoadGamesTask(l, gameListContext.loadedPage, GameListContext.PAGE_SIZE);
-			gameListContext.task.execute();
+			tableListContext.task = new LoadTablesTask(l, game, tableListContext.loadedPage, TableListContext.PAGE_SIZE);
+			tableListContext.task.execute();
 		}
 	}
 
-	public void importGameEnded(boolean succeed, List<Game> newGames) {
+	public void importTableEnded(boolean succeed, List<Table> newTables) {
 		if (succeed) {
-			gameListContext.task = null;
-			if (newGames != null && newGames.size() > 0) {
-				if (newGames.size() == GameListContext.PAGE_SIZE + 1) {
-					newGames.remove(GameListContext.PAGE_SIZE);
-					gameListContext.allLoaded = false;
+			tableListContext.task = null;
+			if (newTables != null && newTables.size() > 0) {
+				if (newTables.size() == TableListContext.PAGE_SIZE + 1) {
+					newTables.remove(TableListContext.PAGE_SIZE);
+					tableListContext.allLoaded = false;
 				} else {
-					gameListContext.allLoaded = true;
+					tableListContext.allLoaded = true;
 				}
 			} else {
-				gameListContext.allLoaded = true;
+				tableListContext.allLoaded = true;
 			}
-			if (gameListContext.loadedPage != 0) {
-				addGameElementToList(newGames);
+			if (tableListContext.loadedPage != 0) {
+				addTableElementToList(newTables);
 			} else {
-				gameListContext.games = newGames;
-				buildGameList();
+				tableListContext.tables = newTables;
+				buildTableList();
 			}
-			gameListContext.loadedPage++;
+			tableListContext.loadedPage++;
 		}
-		gameListContext.loading = false;
+		tableListContext.loading = false;
 
 	}
 
-	private void buildGameList() {
+	private void buildTableList() {
 
-		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+		LinearLayout ln = (LinearLayout) findViewById(R.id.table_list);
 		ln.removeAllViews();
-		if (gameListContext.games != null && gameListContext.games.size() > 0) {
-			addGameElementToList(gameListContext.games);
+		if (tableListContext.tables != null && tableListContext.tables.size() > 0) {
+			addTableElementToList(tableListContext.tables);
 		} else {
 			TextView tv = new TextView(this);
-			tv.setText(R.string.empty_game_list);
+			tv.setText(R.string.empty_table_list);
 			ln.addView(tv);
 		}
 	}
 
-	private void addGameElementToList(List<Game> newGames) {
-		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+	private void addTableElementToList(List<Table> newTables) {
+		LinearLayout ln = (LinearLayout) findViewById(R.id.table_list);
 
-		if (newGames != gameListContext.games) {
-			gameListContext.games.addAll(newGames);
+		if (newTables != tableListContext.tables) {
+			tableListContext.tables.addAll(newTables);
 			if (ln.getChildCount() > 0) {
 				ln.removeViewAt(ln.getChildCount() - 1);
 			}
 		}
-		for (final Game game : newGames) {
-			GameSummaryView view = new GameSummaryView(this, game);
+		for (final Table table : newTables) {
+			table.setGame(game);
+			TableSummaryView view = new TableSummaryView(this, table);
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -233,7 +234,7 @@ public class Home extends Activity {
 			ln.addView(view);
 		}
 
-		if (!gameListContext.allLoaded) {
+		if (!tableListContext.allLoaded) {
 			ln.addView(getProgressView());
 		}
 	}
@@ -277,7 +278,7 @@ public class Home extends Activity {
 		// R.string.apply_existing_filter);
 		// addAccount.setIcon(R.drawable.search);
 		//
-		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_GAME, 1, R.string.import_game);
+		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_TABLE, 1, R.string.import_table);
 		search.setIcon(android.R.drawable.ic_menu_upload);
 
 		return true;
@@ -285,38 +286,38 @@ public class Home extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_GAME) {
-			final File importGameDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_GAMES);
-			final String[] files = importGameDir.list();
+		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_TABLE) {
+			final File importTableDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_TABLES);
+			final String[] files = importTableDir.list();
 			if (files == null || files.length == 0) {
-				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_game_dir, ApplicationConstants.DIRECTORY_IMPORT_GAMES));
+				DialogUtil.showConfirmDialog(this, getResources().getString(R.string.empty_import_table_dir, ApplicationConstants.DIRECTORY_IMPORT_TABLES));
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(getResources().getString(R.string.import_game));
-				builder.setAdapter(new StringAdapter(Home.this, files), new DialogInterface.OnClickListener() {
+				builder.setTitle(getResources().getString(R.string.import_table));
+				builder.setAdapter(new StringAdapter(TableListActivity.this, files), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int item) {
 						dialog.dismiss();
-						File file = new File(importGameDir, files[item]);
-						ImportGameDriver task = DriverManager.getImportGameDriver(file);
+						File file = new File(importTableDir, files[item]);
+						ImportTableDriver task = DriverManager.getImportTableDriver(file);
 						if (task != null) {
-							task.importGame(new ImportGameListener() {
+							task.importTable(new ImportTableListener() {
 
 								@Override
-								public void importEnded(boolean succeed, Game game) {
+								public void importEnded(boolean succeed, Table table) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
 									if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
-										initGameList();
+										initTableList();
 									}
 
 								}
 
 								@Override
 								public Context getContext() {
-									return Home.this;
+									return TableListActivity.this;
 								}
-							}, file);
+							}, game, file);
 							// Intent i = new Intent(OperationList.this,
 							// DefineImportParameter.class);
 							// i.putExtra("ACCOUNT", account);
@@ -324,7 +325,7 @@ public class Home extends Activity {
 							// startActivityForResult(i,
 							// ApplicationConstants.ACTIVITY_RETURN_IMPORT_OPERATION);
 						} else {
-							DialogUtil.showConfirmDialog(Home.this, getResources().getString(R.string.no_driver, files[item]));
+							DialogUtil.showConfirmDialog(TableListActivity.this, getResources().getString(R.string.no_driver, files[item]));
 						}
 					}
 				});
@@ -350,13 +351,6 @@ public class Home extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == ApplicationConstants.ACTIVITY_RETURN_MANAGE_SET) {
-			initGameList();
-		} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_MANAGE_DECK) {
-			initGameList();
-		} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_MANAGE_TABLE) {
-			initGameList();
-		}
 		//
 		// if (resultCode == RESULT_OK) {
 		// if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY)
