@@ -27,6 +27,9 @@ import org.amphiprion.droidvirtualtable.adapter.StringAdapter;
 import org.amphiprion.droidvirtualtable.dao.TableDao;
 import org.amphiprion.droidvirtualtable.driver.ImportTableDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportTableListener;
+import org.amphiprion.droidvirtualtable.dto.GameSession;
+import org.amphiprion.droidvirtualtable.dto.GameTable;
+import org.amphiprion.droidvirtualtable.engine3d.GameSessionActivity;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.Table;
 import org.amphiprion.droidvirtualtable.task.LoadTablesTask;
@@ -218,7 +221,11 @@ public class TableListActivity extends Activity {
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-
+					Intent i = new Intent(TableListActivity.this, GameSessionActivity.class);
+					GameSession gameSession = new GameSession();
+					gameSession.setGameTable(new GameTable(table));
+					i.putExtra("GAME_SESSION", gameSession);
+					startActivity(i);
 				}
 			});
 			view.setOnLongClickListener(new View.OnLongClickListener() {
