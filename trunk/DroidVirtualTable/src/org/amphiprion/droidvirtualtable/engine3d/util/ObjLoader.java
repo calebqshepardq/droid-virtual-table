@@ -169,6 +169,7 @@ public class ObjLoader {
 		sb.put(indices);
 		sb.position(0);
 		mesh.setIndiceBuffer(sb);
+		mesh.setIndiceCount(indices.length);
 
 		// release to enhance GC
 		vertexProperties = null;
