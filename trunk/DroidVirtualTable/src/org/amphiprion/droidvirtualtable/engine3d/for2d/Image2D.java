@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with My Accounts.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.amphiprion.droidvirtualtable.engine3d.mesh;
+package org.amphiprion.droidvirtualtable.engine3d.for2d;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,57 +28,63 @@ import java.util.ArrayList;
 import javax.microedition.khronos.opengles.GL10;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
-import org.amphiprion.droidvirtualtable.R;
 import org.amphiprion.droidvirtualtable.engine3d.util.Texture;
 import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 
 import android.content.Context;
 import android.util.Log;
 
-public class CardPile extends Mesh {
+public class Image2D extends Mesh2D {
+
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
-	public CardPile(Context context, GL10 gl) {
-		super("CardPile");
-		float[] normals = { 0, 0, 1 };
-		short[] indices = { 0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1, 1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3, 3, 7, 4, 3, 4, 0 };
-		float xLenght = 1;
-		float yLength = 1;
-		float zLength = 1;
-		float[] vertices = new float[] { -xLenght / 2.0f, yLength / 2.0f, zLength / 2.0f, // 0,
-				// Top
-				// Left
-				-xLenght / 2.0f, -yLength / 2.0f, zLength / 2.0f, // 1, Bottom
-																	// Left
-				xLenght / 2.0f, -yLength / 2.0f, zLength / 2.0f, // 2, Bottom
-																	// Right
-				xLenght / 2.0f, yLength / 2.0f, zLength / 2.0f, // 3, Top Right
+	public Image2D(Texture texture, String name) {
+		super(name);
+		initMesh(texture);
+	}
 
-				-xLenght / 2.0f, yLength / 2.0f, -zLength / 2.0f, // 0,
-				// Top
-				// Left
-				-xLenght / 2.0f, -yLength / 2.0f, -zLength / 2.0f, // 1, Bottom
-				// Left
-				xLenght / 2.0f, -yLength / 2.0f, -zLength / 2.0f, // 2, Bottom
-				// Right
-				xLenght / 2.0f, yLength / 2.0f, -zLength / 2.0f, // 3, Top Right
+	public Image2D(Context context, GL10 gl, String name, int drawableId) {
+		super(name);
 
-		};
+		Texture texture = null;
 		try {
-			Texture t = TextureUtil.loadTexture(context, R.drawable.card_pile_texture, gl);
-			setTexture(t);
+			texture = TextureUtil.loadTexture(context, drawableId, gl);
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "loadTexture", e);
 		}
+		initMesh(texture);
+	}
+
+	private void initMesh(Texture texture) {
+		float[] normals = { 0, 0, 1 };
+		short[] indices = { 0, 1, 2, 0, 2, 3 };
+
+		float[] vertices = new float[] { -texture.originalWidth / 2.0f, texture.originalHeight / 2.0f, 0, // 0,
+				// Top
+				// Left
+				-texture.originalWidth / 2.0f, -texture.originalHeight / 2.0f, 0, // 1,
+																					// Bottom
+				// Left
+				texture.originalWidth / 2.0f, -texture.originalHeight / 2.0f, 0, // 2,
+																					// Bottom
+				// Right
+				texture.originalWidth / 2.0f, texture.originalHeight / 2.0f, 0, // 3,
+																				// Top
+																				// Right
+		};
+
+		float u = (float) texture.originalWidth / texture.width;
+		float v = (float) texture.originalHeight / texture.height;
+		setTexture(texture);
 		float[] textureCoordinates = new float[] { 0.0f, 0.0f, //
-				1f, 0, //
-				0, 0, //
-				1, 0.0f, //
-				0f, 1f, //
-				1f, 1, //
-				0, 1, //
-				1, 1f, };
+				0.0f, v, //
+				u, v, //
+				u, 0.0f, //
+				0.0f, 0.0f, //
+				0.0f, v, //
+				u, v, //
+				u, 0.0f, };
 
 		ArrayList<Float> vertexPropertiesBuffer = new ArrayList<Float>(600);
 		ArrayList<Short> indicesBuffer = new ArrayList<Short>(200);
@@ -141,4 +147,5 @@ public class CardPile extends Mesh {
 		indicesBuffer = null;
 
 	}
+
 }

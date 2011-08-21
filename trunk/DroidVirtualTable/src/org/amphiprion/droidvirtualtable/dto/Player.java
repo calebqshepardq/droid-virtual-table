@@ -25,6 +25,11 @@ public class Player implements Serializable {
 		cardGroups.put(group.getGroup().getName(), group);
 	}
 
+	public CardGroup getCardGroup(String groupName) {
+		CardGroup group = cardGroups.get(groupName);
+		return group;
+	}
+
 	public void addCard(String groupName, GameCard card) {
 		CardGroup group = cardGroups.get(groupName);
 		group.add(card);

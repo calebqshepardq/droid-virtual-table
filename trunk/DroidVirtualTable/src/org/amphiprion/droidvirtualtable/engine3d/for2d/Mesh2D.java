@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with My Accounts.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.amphiprion.droidvirtualtable.engine3d.mesh;
+package org.amphiprion.droidvirtualtable.engine3d.for2d;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -29,7 +29,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
-public class Mesh {
+public class Mesh2D {
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 8 * FLOAT_SIZE_BYTES;
 	private static final int TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
@@ -38,13 +38,12 @@ public class Mesh {
 
 	public float x;
 	public float y;
-	public float z;
+
 	public int ownRotationZ;
 	public int globalPlayerRotationZ;
 
 	public float scaleX = 1;
 	public float scaleY = 1;
-	public float scaleZ = 1;
 
 	private String name;
 	private Texture texture;
@@ -53,7 +52,7 @@ public class Mesh {
 	private ShortBuffer indiceBuffer;
 	private int indiceCount;
 
-	public Mesh(String name) {
+	public Mesh2D(String name) {
 		this.name = name;
 	}
 
@@ -97,12 +96,22 @@ public class Mesh {
 		this.texture = texture;
 	}
 
-	public void draw(int _program, float[] mMMatrix, float[] mVMatrix, float[] mMVPMatrix, float[] mProjMatrix, float[] normalMatrix, float[] mLightPosInEyeSpace,
+	public void draw(int _program, float[] mMMatrix, float[] mV0Matrix, float[] mMVPMatrix, float[] mProjMatrix, float[] normalMatrix, float[] mLightPosInEyeSpace,
 			float[] lightColor, float[] matAmbient, float[] matDiffuse, float[] matSpecular, float matShininess, float[] eyePos) {
+
+		// material properties
+		// float[] matAmbient = { 1f, 1f, 1f, 1.0f };
+		// float[] matDiffuse = { 0f, 0f, 0f, 1f };
+		//
+		// float[] matSpecular = { 0f, 0f, 0f, 1f };
+
 		Matrix.setIdentityM(mMMatrix, 0);
-		Matrix.translateM(mMMatrix, 0, x, y, z);
-		Matrix.scaleM(mMMatrix, 0, scaleX, scaleY, scaleZ);
+		Matrix.translateM(mMMatrix, 0, x, 768 - y, 0f);
+		Matrix.scaleM(mMMatrix, 0, scaleX, scaleY, 1);
 		Matrix.rotateM(mMMatrix, 0, ownRotationZ + globalPlayerRotationZ, 0, 0, 1);
+
+		float[] mVMatrix = new float[16];
+		Matrix.setIdentityM(mVMatrix, 0);
 
 		Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
@@ -167,7 +176,7 @@ public class Mesh {
 																		 * shader
 																		 * .
 																		 * hasTextureHandle
-																		 */, 0f);
+																		 */, 2.0f);
 
 		// texture coordinates
 		_vb.position(TRIANGLE_VERTICES_DATA_TEX_OFFSET);

@@ -19,6 +19,7 @@
  */
 package org.amphiprion.droidvirtualtable.engine3d;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -34,6 +35,7 @@ import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.amphiprion.droidvirtualtable.dto.Player;
 import org.amphiprion.droidvirtualtable.dto.TableLocation;
 import org.amphiprion.droidvirtualtable.dto.TableZone;
+import org.amphiprion.droidvirtualtable.engine3d.for2d.Image2D;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.CardMesh;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.CardPile;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.Mesh;
@@ -60,6 +62,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	// Modelview/Projection matrices
 	private float[] mMVPMatrix = new float[16];
+	private float[] m2DProjMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
 	private float[] mScaleMatrix = new float[16]; // scaling
 	private float[] mRotXMatrix = new float[16]; // rotation x
@@ -109,9 +112,13 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	// Shader
 	private Shader shader;
 
+	private float screenRatio;
+	private int realWidth;
+	private int realHeight;
+	private float screenScale = 1;
 	// TODO temporaire
-	CardMesh cardMesh;
 	CardPile cardPile;
+	List<Image2D> playerImages = new ArrayList<Image2D>();
 
 	public GameSessionRenderer(Context context, GameSession gameSession) {
 		this.context = context;
@@ -128,6 +135,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
+		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		// Ignore the passed-in GL10 interface, and use the GLES20
 		// class's static methods instead.
 		GLES20.glClearColor(.0f, .0f, .0f, 1.0f);
@@ -167,7 +175,8 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		List<Mesh> meshes = gameSession.getGameTable().getMeshes();
 
 		for (Mesh mesh : meshes) {
-			mesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, _program, eyePos);
+			mesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, matShininess,
+					eyePos);
 		}
 
 		for (Player p : gameSession.getPlayers()) {
@@ -187,7 +196,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 							cardPile.y = tz.getY();
 							cardPile.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) / 2.0f;
 							cardPile.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse,
-									matSpecular, _program, eyePos);
+									matSpecular, matShininess, eyePos);
 						}
 
 						CardMesh cardMesh = cg.getCards().get(nbCard - 1).getCardMesh();
@@ -196,17 +205,54 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 						cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
 						cardMesh.globalPlayerRotationZ = p.getTableLocation().getGlobalRotation();
 						cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
-								_program, eyePos);
+								matShininess, eyePos);
 					}
 				}
 			}
 		}
+		// 2D
+		// TODO essayer de virer tous les parametres de la method draw et faire
+		// un shader plus
+		// simple
+		// au niveau lumiere
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
+		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+		// player.y = 1;// 0.3218f * realHeight / 2;
+		for (Image2D img2D : playerImages) {
+			img2D.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, m2DProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, matShininess,
+					eyePos);
+		}
+		// TODO temporaire affiche la main du joeuru 0 (faire en vrai
+		// l'affichage de sa propre main)
+		Player p = gameSession.getPlayers().get(0);
+		CardGroup cg = p.getCardGroup("Hand");
+		Log.d(ApplicationConstants.PACKAGE, "############Hand#############");
+		int offsetX = 1280 / 2 - cg.count() / 2 * (99 + 5 / 2);
+		for (GameCard card : cg.getCards()) {
+			Log.d(ApplicationConstants.PACKAGE, "   carte: " + card.getCard().getName());
+			Image2D img = card.getImage2D();
+			img.scaleX = 99f / img.getTexture().originalWidth;
+			img.scaleY = 138f / img.getTexture().originalHeight;
+			img.x = offsetX;
+			img.y = 698;
+			offsetX += 99 + 5;
+			img.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, m2DProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, matShininess,
+					eyePos);
+		}
 		/** END DRAWING OBJECT ***/
+		GLES20.glDisable(GLES20.GL_BLEND);
+
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
+		Log.d(ApplicationConstants.PACKAGE, "height=" + height);
+		realWidth = width;
+		realHeight = height;
+		screenScale = Math.min(width / 1280.0f, height / 800.0f);
+
 		GLES20.glViewport(0, 0, width, height);
 		float ratio = (float) width / height;
 
@@ -216,9 +262,10 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		float bottom = -top;
 		float left = bottom * ratio;
 		float right = top * ratio;
-
+		screenRatio = ratio;
 		// View projection
 		Matrix.frustumM(mProjMatrix, 0, left, right, bottom, top, zNear, zFar);
+		Matrix.orthoM(m2DProjMatrix, 0, 0, 1280, 0, 768, 0, 10);
 
 	}
 
@@ -226,7 +273,35 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		shader = new Shader(R.raw.gouraud_vs, R.raw.gouraud_ps, context, false, 0); // gouraud
 
-		// TODO tempo
+		// TODO organiser les image par player dans gamesession
+		Image2D img2D = new Image2D(context, gl, "active_player", R.drawable.mask_texture);
+		img2D.x = 1280 / 2;
+		img2D.y = 698;
+		img2D.scaleX = 1280 / 2;// 2 pixel texture widht
+		img2D.scaleY = 155 / 2.0f;// 2 pixel texture height
+		playerImages.add(img2D);
+		img2D = new Image2D(context, gl, "active_player", R.drawable.active_player);
+		img2D.x = 86;
+		img2D.y = 698;
+		playerImages.add(img2D);
+		img2D = new Image2D(context, gl, "default_player_avatar", R.drawable.default_player_avatar);
+		img2D.x = 86;
+		img2D.y = 698;
+		playerImages.add(img2D);
+		img2D = new Image2D(context, gl, "default_player_avatar", R.drawable.player_canvas);
+		img2D.x = 86;
+		img2D.y = 698;
+		playerImages.add(img2D);
+		img2D = new Image2D(context, gl, "default_player_avatar", R.drawable.deck_counter);
+		img2D.x = 86 - 121 / 2;
+		img2D.y = 698 - 29 / 2;
+		playerImages.add(img2D);
+		img2D = new Image2D(context, gl, "default_player_avatar", R.drawable.hand_counter);
+		img2D.x = 86 - 121 / 2;
+		img2D.y = 698 + 29 / 2;
+		playerImages.add(img2D);
+
+		// TODO tempo (faire un loader task, pour voir l'avancement)
 		for (Player p : gameSession.getPlayers()) {
 			GameDeck deck = p.getDeck();
 			for (DeckSection section : deck.getSections()) {
@@ -239,6 +314,13 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 					card.setCardMesh(cardMesh);
 				}
 			}
+		}
+		// TODO temporaire pour mettre des carte dans la main
+		Player p = gameSession.getPlayers().get(0);
+		CardGroup hand = p.getCardGroup("Hand");
+		for (int i = 0; i < 7; i++) {
+			GameCard c = p.getCardGroup("Deck").takeTopCard();
+			p.addCard("Hand", c);
 		}
 
 		cardPile = new CardPile(context, gl);
@@ -257,7 +339,6 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		angleCameraX = loc.getCamera().getAngleX();
 		angleCameraZ = loc.getCamera().getAngleZ();
 
-		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glClearDepthf(1.0f);
 		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 		GLES20.glDepthMask(true);
