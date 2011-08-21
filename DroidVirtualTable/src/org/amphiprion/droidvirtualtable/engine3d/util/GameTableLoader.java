@@ -27,7 +27,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
-import org.amphiprion.droidvirtualtable.dto.GameTable;
+import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -38,13 +38,13 @@ import android.os.Environment;
  * 
  */
 public class GameTableLoader {
-	public static void load(GL10 gl, GameTable gameTable) throws Exception {
+	public static void load(GL10 gl, GameSession gameSession) throws Exception {
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		SAXParser sp = spf.newSAXParser();
 		XMLReader xr = sp.getXMLReader();
-		File tableDir = new File(Environment.getExternalStorageDirectory(), ApplicationConstants.DIRECTORY_GAMES + "/" + gameTable.getTable().getGame().getId() + "/tables/"
-				+ gameTable.getTable().getId());
-		GameTableHandler myXMLHandler = new GameTableHandler(gl, tableDir, gameTable);
+		File tableDir = new File(Environment.getExternalStorageDirectory(), ApplicationConstants.DIRECTORY_GAMES + "/" + gameSession.getGameTable().getTable().getGame().getId()
+				+ "/tables/" + gameSession.getGameTable().getTable().getId());
+		GameTableHandler myXMLHandler = new GameTableHandler(gl, tableDir, gameSession);
 		xr.setContentHandler(myXMLHandler);
 		File file = new File(tableDir, "table.xml");
 		FileInputStream fis = new FileInputStream(file);

@@ -20,6 +20,8 @@
 package org.amphiprion.droidvirtualtable.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Amphiprion
@@ -32,6 +34,11 @@ public class GameSession implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private GameTable table;
+	private List<Player> players;
+
+	public GameSession() {
+		players = new ArrayList<Player>();
+	}
 
 	public GameTable getGameTable() {
 		return table;
@@ -39,5 +46,18 @@ public class GameSession implements Serializable {
 
 	public void setGameTable(GameTable table) {
 		this.table = table;
+	}
+
+	public List<Player> getPlayers() {
+		return players;
+	}
+
+	public Player getPlayer(String locationName) {
+		for (Player p : players) {
+			if (locationName.equals(p.getLocationName())) {
+				return p;
+			}
+		}
+		return null;
 	}
 }

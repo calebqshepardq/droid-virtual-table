@@ -26,13 +26,20 @@ import javax.microedition.khronos.opengles.GL10;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.R;
+import org.amphiprion.droidvirtualtable.dto.CardGroup;
+import org.amphiprion.droidvirtualtable.dto.DeckSection;
+import org.amphiprion.droidvirtualtable.dto.GameCard;
+import org.amphiprion.droidvirtualtable.dto.GameDeck;
 import org.amphiprion.droidvirtualtable.dto.GameSession;
-import org.amphiprion.droidvirtualtable.dto.GameTable;
+import org.amphiprion.droidvirtualtable.dto.Player;
 import org.amphiprion.droidvirtualtable.dto.TableLocation;
+import org.amphiprion.droidvirtualtable.dto.TableZone;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.CardMesh;
+import org.amphiprion.droidvirtualtable.engine3d.mesh.CardPile;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.Mesh;
 import org.amphiprion.droidvirtualtable.engine3d.shader.Shader;
 import org.amphiprion.droidvirtualtable.engine3d.util.GameTableLoader;
+import org.amphiprion.droidvirtualtable.entity.Group;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -104,6 +111,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	// TODO temporaire
 	CardMesh cardMesh;
+	CardPile cardPile;
 
 	public GameSessionRenderer(Context context, GameSession gameSession) {
 		this.context = context;
@@ -134,8 +142,8 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		GLES20.glUseProgram(_program);
 		checkGlError("glUseProgram");
 
-		angleCameraZ++;
-		updateCamera();
+		// angleCameraZ++;
+		// updateCamera();
 
 		// MMatrix
 		Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], lookAt[0], lookAt[1], lookAt[2], 0, 0, 1);
@@ -161,13 +169,35 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		for (Mesh mesh : meshes) {
 			mesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, _program, eyePos);
 		}
-		for (int i = 0; i < 160; i++) {
-			cardMesh.x = 4.443f;
-			cardMesh.y = -0.549f;
-			cardMesh.z = 0.202f + 0.005f * i + 0.005f / 2;
 
-			cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, _program,
-					eyePos);
+		for (Player p : gameSession.getPlayers()) {
+			for (CardGroup cg : p.getCardGroups()) {
+				if (cg.getGroup().getType() != Group.Type.HAND) {
+					TableZone tl = p.getTableLocation().getTableZone(cg.getGroup().getName());
+					int nbCard = cg.count();
+					if (nbCard > 0) {
+						if (nbCard > 1) {
+							// TODO recupérer la taille
+							cardPile.scaleX = 0.63f;
+							cardPile.scaleY = 0.88f;
+							cardPile.scaleZ = 0.005f * (nbCard - 1);
+
+							cardPile.x = tl.getX();
+							cardPile.y = tl.getY();
+							cardPile.z = tl.getZ() + 0.005f * (nbCard - 1) / 2.0f;
+							cardPile.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse,
+									matSpecular, _program, eyePos);
+						}
+
+						CardMesh cardMesh = cg.getCards().get(nbCard - 1).getCardMesh();
+						cardMesh.x = tl.getX();
+						cardMesh.y = tl.getY();
+						cardMesh.z = tl.getZ() + 0.005f * (nbCard - 1) + 0.005f / 2;
+						cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
+								_program, eyePos);
+					}
+				}
+			}
 		}
 
 		/** END DRAWING OBJECT ***/
@@ -195,19 +225,30 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		shader = new Shader(R.raw.gouraud_vs, R.raw.gouraud_ps, context, false, 0); // gouraud
 
 		// TODO tempo
-		cardMesh = new CardMesh(gl, "testCarte", gameSession.getGameTable().getTable().getGame().getId() + "/cards/back.jpg", gameSession.getGameTable().getTable().getGame()
-				.getId()
-				+ "/cards/front.jpg", 0.63f, 0.88f, 0.005f);
+		for (Player p : gameSession.getPlayers()) {
+			GameDeck deck = p.getDeck();
+			for (DeckSection section : deck.getSections()) {
+				for (GameCard card : section.getCards()) {
+					p.addCard(section.getStartupGroupName(), card);
+					// TODO prendre le back de la definition
+					CardMesh cardMesh = new CardMesh(gl, card.getCard().getName(), gameSession.getGameTable().getTable().getGame().getId() + "/cards/back.jpg", gameSession
+							.getGameTable().getTable().getGame().getId()
+							+ "/sets/" + card.getCard().getGameSet().getId() + "/" + card.getCard().getImageName(), 0.63f, 0.88f, 0.005f);
+					card.setCardMesh(cardMesh);
+				}
+			}
+		}
+
+		cardPile = new CardPile(context, gl);
 
 		// load meshes
-		GameTable gameTable = gameSession.getGameTable();
 		try {
-			GameTableLoader.load(gl, gameTable);
+			GameTableLoader.load(gl, gameSession);
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "onSurfaceCreated", e);
 		}
 
-		TableLocation loc = gameTable.getTableLocations().get(0);
+		TableLocation loc = gameSession.getPlayers().get(0).getTableLocation();
 		eyePos[0] = loc.getCamera().getX();
 		eyePos[1] = loc.getCamera().getY();
 		eyePos[2] = loc.getCamera().getZ();

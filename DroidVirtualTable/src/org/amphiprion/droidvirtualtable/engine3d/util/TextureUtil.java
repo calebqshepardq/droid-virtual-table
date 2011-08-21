@@ -29,6 +29,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -40,7 +41,15 @@ public class TextureUtil {
 	private static Map<String, Texture> textures = new HashMap<String, Texture>();
 	private static GL10 gl;
 
+	public static Texture loadTexture(Context context, int rawId, GL10 gl) throws Exception {
+		return loadTexture("#" + rawId, gl, context);
+	}
+
 	public static Texture loadTexture(String uri, GL10 gl) throws Exception {
+		return loadTexture(uri, gl, null);
+	}
+
+	private static Texture loadTexture(String uri, GL10 gl, Context context) throws Exception {
 		if (TextureUtil.gl != null && TextureUtil.gl != gl) {
 			unloadAll();
 		}
@@ -48,10 +57,16 @@ public class TextureUtil {
 
 		Texture texture = textures.get(uri);
 		if (texture == null) {
-			File file = new File(Environment.getExternalStorageDirectory(), ApplicationConstants.DIRECTORY_GAMES + "/" + uri);
-			InputStream is = new FileInputStream(file);
-			// Log.d("OPENGL", "load texture:" + uri);
-			Bitmap bitmap = BitmapFactory.decodeStream(is);
+			Bitmap bitmap = null;
+
+			if (uri.startsWith("#")) {
+				bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(uri.substring(1)));
+			} else {
+				File file = new File(Environment.getExternalStorageDirectory(), ApplicationConstants.DIRECTORY_GAMES + "/" + uri);
+				InputStream is = new FileInputStream(file);
+				// Log.d("OPENGL", "load texture:" + uri);
+				bitmap = BitmapFactory.decodeStream(is);
+			}
 			int contentWidth = bitmap.getWidth();
 			int contentHeight = bitmap.getHeight();
 			int mStrikeWidth = 1;

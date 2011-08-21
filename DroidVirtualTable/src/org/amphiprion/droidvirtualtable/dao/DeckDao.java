@@ -20,12 +20,19 @@
 package org.amphiprion.droidvirtualtable.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.amphiprion.droidvirtualtable.dto.DeckSection;
+import org.amphiprion.droidvirtualtable.dto.GameCard;
+import org.amphiprion.droidvirtualtable.dto.GameDeck;
+import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.Deck;
 import org.amphiprion.droidvirtualtable.entity.DeckContent;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.Group;
+import org.amphiprion.droidvirtualtable.entity.Section;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -62,6 +69,42 @@ public class DeckDao extends AbstractDao {
 			instance = new DeckDao(context);
 		}
 		return instance;
+	}
+
+	public GameDeck buidGameDeck(String deckId) {
+		String sql = "SELECT " + Deck.DbField.NAME + " from DECK where " + Deck.DbField.GAME_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { deckId });
+		GameDeck gameDeck = new GameDeck();
+		if (cursor.moveToFirst()) {
+			gameDeck.setName(cursor.getString(0));
+		}
+		cursor.close();
+		// key=section id
+		HashMap<String, DeckSection> sections = new HashMap<String, DeckSection>();
+
+		List<DeckContent> contents = DeckContentDao.getInstance(context).getDeckContents(deckId);
+		for (DeckContent deckContent : contents) {
+			String sId = deckContent.getSection().getId();
+			DeckSection ds = sections.get(sId);
+			if (ds == null) {
+				Section s = SectionDao.getInstance(context).getSection(sId);
+				ds = new DeckSection();
+				ds.setName(s.getName());
+				Group grp = GroupDao.getInstance(context).getGroup(s.getStartupGroup().getId());
+				ds.setStartupGroupName(grp.getName());
+				sections.put(sId, ds);
+				gameDeck.getSections().add(ds);
+			}
+			Card c = CardDao.getInstance(context).getCard(deckContent.getCard().getId());
+			for (int i = 0; i < deckContent.getQuantity(); i++) {
+				GameCard gc = new GameCard();
+				gc.setCard(c);
+				ds.getCards().add(gc);
+			}
+		}
+
+		return gameDeck;
 	}
 
 	/**

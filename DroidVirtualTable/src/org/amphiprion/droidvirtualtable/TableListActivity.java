@@ -24,13 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.droidvirtualtable.adapter.StringAdapter;
+import org.amphiprion.droidvirtualtable.dao.DeckDao;
+import org.amphiprion.droidvirtualtable.dao.GroupDao;
 import org.amphiprion.droidvirtualtable.dao.TableDao;
 import org.amphiprion.droidvirtualtable.driver.ImportTableDriver;
 import org.amphiprion.droidvirtualtable.driver.ImportTableListener;
+import org.amphiprion.droidvirtualtable.dto.CardGroup;
 import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.amphiprion.droidvirtualtable.dto.GameTable;
+import org.amphiprion.droidvirtualtable.dto.Player;
 import org.amphiprion.droidvirtualtable.engine3d.GameSessionActivity;
 import org.amphiprion.droidvirtualtable.entity.Game;
+import org.amphiprion.droidvirtualtable.entity.Group;
 import org.amphiprion.droidvirtualtable.entity.Table;
 import org.amphiprion.droidvirtualtable.task.LoadTablesTask;
 import org.amphiprion.droidvirtualtable.task.LoadTablesTask.LoadTableListener;
@@ -223,7 +228,30 @@ public class TableListActivity extends Activity {
 				public void onClick(View v) {
 					Intent i = new Intent(TableListActivity.this, GameSessionActivity.class);
 					GameSession gameSession = new GameSession();
+
+					List<Group> groups = GroupDao.getInstance(TableListActivity.this).getGroups(game.getId());
+					Player p = new Player();
+					p.setName("Gerald");
+					p.setLocationName("A");
+					String deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Chaos Starter Deck").getId();
+					p.setDeck(DeckDao.getInstance(TableListActivity.this).buidGameDeck(deckId));
+					for (Group group : groups) {
+						p.addCardGroup(new CardGroup(group));
+					}
+					gameSession.getPlayers().add(p);
+
+					p = new Player();
+					p.setName("Emma");
+					p.setLocationName("B");
+					deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Dwarf Starter Deck").getId();
+					p.setDeck(DeckDao.getInstance(TableListActivity.this).buidGameDeck(deckId));
+					for (Group group : groups) {
+						p.addCardGroup(new CardGroup(group));
+					}
+					gameSession.getPlayers().add(p);
+
 					gameSession.setGameTable(new GameTable(table));
+
 					i.putExtra("GAME_SESSION", gameSession);
 					startActivity(i);
 				}
