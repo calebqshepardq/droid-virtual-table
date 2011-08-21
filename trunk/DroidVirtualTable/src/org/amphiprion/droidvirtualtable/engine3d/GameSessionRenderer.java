@@ -194,7 +194,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 						cardMesh.x = tz.getX();
 						cardMesh.y = tz.getY();
 						cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
-						cardMesh.rotationZ = p.getTableLocation().getGlobalRotation();
+						cardMesh.globalPlayerRotationZ = p.getTableLocation().getGlobalRotation();
 						cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
 								_program, eyePos);
 					}

@@ -51,11 +51,11 @@ public class CardMesh extends Mesh {
 		try {
 			backTexture = TextureUtil.loadTexture(uriBack, gl);
 			frontTexture = TextureUtil.loadTexture(uriFront, gl);
+
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "loadTexture", e);
 		}
-		frontDisplayed = false;
-		setTexture(backTexture);
+		setFrontDisplayed(false);
 
 		float u = (float) backTexture.originalWidth / backTexture.width;
 		float v = (float) backTexture.originalHeight / backTexture.height;
