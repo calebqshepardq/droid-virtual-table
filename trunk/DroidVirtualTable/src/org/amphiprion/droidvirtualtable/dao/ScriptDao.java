@@ -137,7 +137,7 @@ public class ScriptDao extends AbstractDao {
 		Object[] params = new Object[3];
 		params[0] = entity.getGame().getId();
 		params[1] = entity.getFilename();
-		params[3] = entity.getId();
+		params[2] = entity.getId();
 
 		execSQL(sql, params);
 

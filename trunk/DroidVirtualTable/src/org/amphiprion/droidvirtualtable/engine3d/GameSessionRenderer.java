@@ -173,26 +173,28 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		for (Player p : gameSession.getPlayers()) {
 			for (CardGroup cg : p.getCardGroups()) {
 				if (cg.getGroup().getType() != Group.Type.HAND) {
-					TableZone tl = p.getTableLocation().getTableZone(cg.getGroup().getName());
+
+					TableZone tz = p.getTableLocation().getTableZone(cg.getGroup().getName());
 					int nbCard = cg.count();
 					if (nbCard > 0) {
 						if (nbCard > 1) {
 							// TODO recupérer la taille
-							cardPile.scaleX = 0.63f;
-							cardPile.scaleY = 0.88f;
-							cardPile.scaleZ = 0.005f * (nbCard - 1);
+							cardPile.scaleX = cg.getGroup().getWidth() / 100.0f;
+							cardPile.scaleY = cg.getGroup().getHeight() / 100.0f;
+							cardPile.scaleZ = CardMesh.CARD_HEIGHT * (nbCard - 1);
 
-							cardPile.x = tl.getX();
-							cardPile.y = tl.getY();
-							cardPile.z = tl.getZ() + 0.005f * (nbCard - 1) / 2.0f;
+							cardPile.x = tz.getX();
+							cardPile.y = tz.getY();
+							cardPile.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) / 2.0f;
 							cardPile.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse,
 									matSpecular, _program, eyePos);
 						}
 
 						CardMesh cardMesh = cg.getCards().get(nbCard - 1).getCardMesh();
-						cardMesh.x = tl.getX();
-						cardMesh.y = tl.getY();
-						cardMesh.z = tl.getZ() + 0.005f * (nbCard - 1) + 0.005f / 2;
+						cardMesh.x = tz.getX();
+						cardMesh.y = tz.getY();
+						cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
+						cardMesh.rotationZ = p.getTableLocation().getGlobalRotation();
 						cardMesh.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
 								_program, eyePos);
 					}
@@ -233,7 +235,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 					// TODO prendre le back de la definition
 					CardMesh cardMesh = new CardMesh(gl, card.getCard().getName(), gameSession.getGameTable().getTable().getGame().getId() + "/cards/back.jpg", gameSession
 							.getGameTable().getTable().getGame().getId()
-							+ "/sets/" + card.getCard().getGameSet().getId() + "/" + card.getCard().getImageName(), 0.63f, 0.88f, 0.005f);
+							+ "/sets/" + card.getCard().getGameSet().getId() + "/" + card.getCard().getImageName());
 					card.setCardMesh(cardMesh);
 				}
 			}

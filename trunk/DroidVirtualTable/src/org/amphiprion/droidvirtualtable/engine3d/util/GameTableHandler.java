@@ -63,6 +63,8 @@ public class GameTableHandler extends DefaultHandler {
 		} else if (localName.equals("location")) {
 			String locName = attributes.getValue("name");
 			loc = new TableLocation(locName);
+			int rotationZ = Integer.parseInt(attributes.getValue("globalRotation"));
+			loc.setGlobalRotation(rotationZ);
 			// TODO mettre les locations en base lors de l'import, afin de
 			// pouvoir affecter les players aux locations lors de la création de
 			// partie

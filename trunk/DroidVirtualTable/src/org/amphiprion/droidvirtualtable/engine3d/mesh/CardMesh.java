@@ -15,6 +15,8 @@ import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 import android.util.Log;
 
 public class CardMesh extends Mesh {
+	public static float CARD_HEIGHT = 0.005f;
+
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
@@ -22,27 +24,28 @@ public class CardMesh extends Mesh {
 	private Texture backTexture;
 	private Texture frontTexture;
 
-	public CardMesh(GL10 gl, String name, String uriBack, String uriFront, float xLenght, float yLength, float zLength) {
+	public CardMesh(GL10 gl, String name, String uriBack, String uriFront) {
 		super(name);
+
 		float[] normals = { 0, 0, 1 };
 		short[] indices = { 0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1, 1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3, 3, 7, 4, 3, 4, 0 };
-		float[] vertices = new float[] { -xLenght / 2.0f, yLength / 2.0f, zLength / 2.0f, // 0,
+		float[] vertices = new float[] { -1 / 2.0f, 1 / 2.0f, CARD_HEIGHT / 2.0f, // 0,
 				// Top
 				// Left
-				-xLenght / 2.0f, -yLength / 2.0f, zLength / 2.0f, // 1, Bottom
-																	// Left
-				xLenght / 2.0f, -yLength / 2.0f, zLength / 2.0f, // 2, Bottom
-																	// Right
-				xLenght / 2.0f, yLength / 2.0f, zLength / 2.0f, // 3, Top Right
+				-1 / 2.0f, -1 / 2.0f, CARD_HEIGHT / 2.0f, // 1, Bottom
+															// Left
+				1 / 2.0f, -1 / 2.0f, CARD_HEIGHT / 2.0f, // 2, Bottom
+															// Right
+				1 / 2.0f, 1 / 2.0f, CARD_HEIGHT / 2.0f, // 3, Top Right
 
-				-xLenght / 2.0f, yLength / 2.0f, -zLength / 2.0f, // 0,
+				-1 / 2.0f, 1 / 2.0f, -CARD_HEIGHT / 2.0f, // 0,
 				// Top
 				// Left
-				-xLenght / 2.0f, -yLength / 2.0f, -zLength / 2.0f, // 1, Bottom
+				-1 / 2.0f, -1 / 2.0f, -CARD_HEIGHT / 2.0f, // 1, Bottom
 				// Left
-				xLenght / 2.0f, -yLength / 2.0f, -zLength / 2.0f, // 2, Bottom
+				1 / 2.0f, -1 / 2.0f, -CARD_HEIGHT / 2.0f, // 2, Bottom
 				// Right
-				xLenght / 2.0f, yLength / 2.0f, -zLength / 2.0f, // 3, Top Right
+				1 / 2.0f, 1 / 2.0f, -CARD_HEIGHT / 2.0f, // 3, Top Right
 
 		};
 		try {
@@ -53,7 +56,7 @@ public class CardMesh extends Mesh {
 		}
 		frontDisplayed = false;
 		setTexture(backTexture);
-		Log.d(ApplicationConstants.PACKAGE, "u=" + backTexture.originalWidth / backTexture.width + "  v=" + backTexture.originalHeight / backTexture.height);
+
 		float u = (float) backTexture.originalWidth / backTexture.width;
 		float v = (float) backTexture.originalHeight / backTexture.height;
 		float[] textureCoordinates = new float[] { 0.0f, 0.0f, //
@@ -139,4 +142,5 @@ public class CardMesh extends Mesh {
 			setTexture(backTexture);
 		}
 	}
+
 }

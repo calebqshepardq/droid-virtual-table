@@ -65,6 +65,17 @@ public class CardGroup implements Serializable {
 				card.setFrontDisplayed(true);
 			}
 			cards.add(card);
+			if (card.getContainer() != null) {
+				card.getContainer().remove(card);
+			}
+			card.setContainer(this);
+		}
+	}
+
+	public void remove(GameCard card) {
+		synchronized (cards) {
+			cards.remove(card);
+			card.setContainer(null);
 		}
 	}
 

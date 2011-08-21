@@ -236,6 +236,8 @@ public class TableListActivity extends Activity {
 					String deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Chaos Starter Deck").getId();
 					p.setDeck(DeckDao.getInstance(TableListActivity.this).buidGameDeck(deckId));
 					for (Group group : groups) {
+						Log.d(ApplicationConstants.PACKAGE, "group=" + group.getName());
+
 						p.addCardGroup(new CardGroup(group));
 					}
 					gameSession.getPlayers().add(p);
