@@ -19,6 +19,9 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.Group;
@@ -117,6 +120,36 @@ public class GroupDao extends AbstractDao {
 			a.setWidth(Integer.parseInt(cursor.getString(6)));
 			a.setHeight(Integer.parseInt(cursor.getString(7)));
 			result = a;
+		}
+		cursor.close();
+		return result;
+	}
+
+	/**
+	 * Return the given Group or null if not exists.
+	 * 
+	 * @param id
+	 *            the id
+	 * @return the group
+	 */
+	public List<Group> getGroups(String gameId) {
+		String sql = "SELECT " + Group.DbField.ID + "," + Group.DbField.GAME_ID + "," + Group.DbField.NAME + "," + Group.DbField.TYPE + "," + Group.DbField.VISIBILITY + ","
+				+ Group.DbField.VISIBILITY_VALUE + "," + Group.DbField.WIDTH + "," + Group.DbField.HEIGHT + " from ZONE where " + Group.DbField.GAME_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { gameId });
+		ArrayList<Group> result = new ArrayList<Group>();
+		if (cursor.moveToFirst()) {
+			do {
+				Group a = new Group(cursor.getString(0));
+				a.setGame(new Game(cursor.getString(1)));
+				a.setName(cursor.getString(2));
+				a.setType(Type.valueOf(cursor.getString(3)));
+				a.setVisibility(Visibility.valueOf(cursor.getString(4)));
+				a.setVisibilityValue(cursor.getString(5));
+				a.setWidth(Integer.parseInt(cursor.getString(6)));
+				a.setHeight(Integer.parseInt(cursor.getString(7)));
+				result.add(a);
+			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		return result;

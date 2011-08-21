@@ -25,7 +25,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
 import org.amphiprion.droidvirtualtable.dto.Camera;
-import org.amphiprion.droidvirtualtable.dto.GameTable;
+import org.amphiprion.droidvirtualtable.dto.GameSession;
 import org.amphiprion.droidvirtualtable.dto.TableLocation;
 import org.amphiprion.droidvirtualtable.dto.TableZone;
 import org.xml.sax.Attributes;
@@ -41,15 +41,15 @@ import android.util.Log;
 public class GameTableHandler extends DefaultHandler {
 	private GL10 gl;
 	private File tableDir;
-	private GameTable gameTable;
+	private GameSession gameSession;
 
 	private TableLocation loc;
 	private String xmlPath;
 
-	public GameTableHandler(GL10 gl, File tableDir, GameTable gameTable) {
+	public GameTableHandler(GL10 gl, File tableDir, GameSession gameSession) {
 		this.gl = gl;
 		this.tableDir = tableDir;
-		this.gameTable = gameTable;
+		this.gameSession = gameSession;
 	}
 
 	@Override
@@ -61,9 +61,12 @@ public class GameTableHandler extends DefaultHandler {
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if (localName.equals("table")) {
 		} else if (localName.equals("location")) {
-			String name = attributes.getValue("name");
-			loc = new TableLocation(name);
-			gameTable.getTableLocations().add(loc);
+			String locName = attributes.getValue("name");
+			loc = new TableLocation(locName);
+			// TODO mettre les locations en base lors de l'import, afin de
+			// pouvoir affecter les players aux locations lors de la création de
+			// partie
+			gameSession.getPlayer(locName).setTableLocation(loc);
 		} else if (localName.equals("camera")) {
 			Camera cam = new Camera();
 			cam.setX(Float.parseFloat(attributes.getValue("x")));
@@ -82,7 +85,11 @@ public class GameTableHandler extends DefaultHandler {
 		} else if (localName.equals("object")) {
 			File objFile = new File(tableDir, attributes.getValue("file"));
 			try {
-				gameTable.getMeshes().addAll(ObjLoader.loadObjects(gl, gameTable.getTable().getGame().getId() + "/tables/" + gameTable.getTable().getId(), objFile));
+				gameSession
+						.getGameTable()
+						.getMeshes()
+						.addAll(ObjLoader.loadObjects(gl, gameSession.getGameTable().getTable().getGame().getId() + "/tables/" + gameSession.getGameTable().getTable().getId(),
+								objFile));
 			} catch (SAXException e) {
 				throw e;
 			} catch (Exception e) {

@@ -9,23 +9,24 @@ import java.util.ArrayList;
 import javax.microedition.khronos.opengles.GL10;
 
 import org.amphiprion.droidvirtualtable.ApplicationConstants;
+import org.amphiprion.droidvirtualtable.R;
 import org.amphiprion.droidvirtualtable.engine3d.util.Texture;
 import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 
+import android.content.Context;
 import android.util.Log;
 
-public class CardMesh extends Mesh {
+public class CardPile extends Mesh {
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
-	private boolean frontDisplayed;
-	private Texture backTexture;
-	private Texture frontTexture;
-
-	public CardMesh(GL10 gl, String name, String uriBack, String uriFront, float xLenght, float yLength, float zLength) {
-		super(name);
+	public CardPile(Context context, GL10 gl) {
+		super("CardPile");
 		float[] normals = { 0, 0, 1 };
 		short[] indices = { 0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1, 1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3, 3, 7, 4, 3, 4, 0 };
+		float xLenght = 1;
+		float yLength = 1;
+		float zLength = 1;
 		float[] vertices = new float[] { -xLenght / 2.0f, yLength / 2.0f, zLength / 2.0f, // 0,
 				// Top
 				// Left
@@ -46,24 +47,19 @@ public class CardMesh extends Mesh {
 
 		};
 		try {
-			backTexture = TextureUtil.loadTexture(uriBack, gl);
-			frontTexture = TextureUtil.loadTexture(uriFront, gl);
+			Texture t = TextureUtil.loadTexture(context, R.drawable.card_pile_texture, gl);
+			setTexture(t);
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "loadTexture", e);
 		}
-		frontDisplayed = false;
-		setTexture(backTexture);
-		Log.d(ApplicationConstants.PACKAGE, "u=" + backTexture.originalWidth / backTexture.width + "  v=" + backTexture.originalHeight / backTexture.height);
-		float u = (float) backTexture.originalWidth / backTexture.width;
-		float v = (float) backTexture.originalHeight / backTexture.height;
 		float[] textureCoordinates = new float[] { 0.0f, 0.0f, //
-				0.0f, v, //
-				u, v, //
-				u, 0.0f, //
-				0.0f, 0.0f, //
-				0.0f, v, //
-				u, v, //
-				u, 0.0f, };
+				1f, 0, //
+				0, 0, //
+				1, 0.0f, //
+				0f, 1f, //
+				1f, 1, //
+				0, 1, //
+				1, 1f, };
 
 		ArrayList<Float> vertexPropertiesBuffer = new ArrayList<Float>(600);
 		ArrayList<Short> indicesBuffer = new ArrayList<Short>(200);
@@ -125,18 +121,5 @@ public class CardMesh extends Mesh {
 		indicesBuffer.clear();
 		indicesBuffer = null;
 
-	}
-
-	public boolean isFrontDisplayed() {
-		return frontDisplayed;
-	}
-
-	public void setFrontDisplayed(boolean frontDisplayed) {
-		this.frontDisplayed = frontDisplayed;
-		if (frontDisplayed) {
-			setTexture(frontTexture);
-		} else {
-			setTexture(backTexture);
-		}
 	}
 }

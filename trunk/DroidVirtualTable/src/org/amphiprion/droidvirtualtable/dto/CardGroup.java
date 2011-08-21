@@ -23,29 +23,57 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.amphiprion.droidvirtualtable.engine3d.mesh.Mesh;
-import org.amphiprion.droidvirtualtable.entity.Table;
+import org.amphiprion.droidvirtualtable.entity.Group;
 
-public class GameTable implements Serializable {
+/**
+ * @author Amphiprion
+ * 
+ */
+public class CardGroup implements Serializable {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Table table;
-	private List<Mesh> meshes;
+	private Group group;
+	private List<GameCard> cards;
 
-	public GameTable(Table table) {
-		this.table = table;
-		meshes = new ArrayList<Mesh>();
+	public CardGroup(Group group) {
+		this.group = group;
+		cards = new ArrayList<GameCard>();
 	}
 
-	public Table getTable() {
-		return table;
+	public Group getGroup() {
+		return group;
 	}
 
-	public List<Mesh> getMeshes() {
-		return meshes;
+	public int count() {
+		return cards.size();
 	}
 
+	public List<GameCard> getCards() {
+		return cards;
+	}
+
+	public void add(GameCard card) {
+		synchronized (cards) {
+			// TODO gerer me, et la liste de user
+			if (group.getVisibility() == Group.Visibility.none) {
+				card.setFrontDisplayed(false);
+			} else if (group.getVisibility() == Group.Visibility.all) {
+				card.setFrontDisplayed(true);
+			}
+			cards.add(card);
+		}
+	}
+
+	public GameCard takeTopCard() {
+		GameCard c = null;
+		synchronized (cards) {
+			c = cards.get(cards.size() - 1);
+			cards.remove(cards.size() - 1);
+		}
+		return c;
+	}
 }

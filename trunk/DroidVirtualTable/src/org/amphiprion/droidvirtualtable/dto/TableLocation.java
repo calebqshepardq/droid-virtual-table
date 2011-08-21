@@ -58,4 +58,13 @@ public class TableLocation implements Serializable {
 		return tableZones;
 	}
 
+	public TableZone getTableZone(String groupName) {
+		for (TableZone zone : tableZones) {
+			if (groupName.equals(zone.getLinkedGroupName())) {
+				return zone;
+			}
+		}
+		return null;
+	}
+
 }

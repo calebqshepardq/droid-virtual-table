@@ -19,6 +19,9 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.Deck;
 import org.amphiprion.droidvirtualtable.entity.DeckContent;
@@ -89,6 +92,39 @@ public class DeckContentDao extends AbstractDao {
 			a.setCard(new Card(cursor.getString(4)));
 			a.setQuantity(cursor.getInt(5));
 			result = a;
+		}
+		cursor.close();
+		return result;
+	}
+
+	/**
+	 * Return true if the given DeckContent exists in android database.
+	 * 
+	 * @param deckId
+	 *            the linked deck id
+	 * @param sectionId
+	 *            the linked section id
+	 * @param name
+	 *            the name
+	 * @return the DeckContent or null if not exists
+	 */
+	public List<DeckContent> getDeckContents(String deckId) {
+
+		String sql = "SELECT " + DeckContent.DbField.ID + "," + DeckContent.DbField.DECK_ID + "," + DeckContent.DbField.SECTION_ID + "," + DeckContent.DbField.NAME + ","
+				+ DeckContent.DbField.CARD_ID + "," + DeckContent.DbField.QUANTITY + " from DECK_CONTENT where " + DeckContent.DbField.DECK_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { deckId });
+		ArrayList<DeckContent> result = new ArrayList<DeckContent>();
+		if (cursor.moveToFirst()) {
+			do {
+				DeckContent a = new DeckContent(cursor.getString(0));
+				a.setDeck(new Deck(cursor.getString(1)));
+				a.setSection(new Section(cursor.getString(2)));
+				a.setName(cursor.getString(3));
+				a.setCard(new Card(cursor.getString(4)));
+				a.setQuantity(cursor.getInt(5));
+				result.add(a);
+			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		return result;
