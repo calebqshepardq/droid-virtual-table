@@ -34,6 +34,7 @@ public class TableLocation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String name;
+	private int globalRotation;
 	private Camera camera;
 	private List<TableZone> tableZones;
 
@@ -65,6 +66,14 @@ public class TableLocation implements Serializable {
 			}
 		}
 		return null;
+	}
+
+	public int getGlobalRotation() {
+		return globalRotation;
+	}
+
+	public void setGlobalRotation(int globalRotation) {
+		this.globalRotation = globalRotation;
 	}
 
 }

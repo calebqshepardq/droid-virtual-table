@@ -20,6 +20,7 @@
 package org.amphiprion.droidvirtualtable.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -103,7 +104,9 @@ public class DeckDao extends AbstractDao {
 				ds.getCards().add(gc);
 			}
 		}
-
+		for (DeckSection section : sections.values()) {
+			Collections.shuffle(section.getCards());
+		}
 		return gameDeck;
 	}
 

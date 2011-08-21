@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.amphiprion.droidvirtualtable.engine3d.mesh.CardMesh;
 import org.amphiprion.droidvirtualtable.entity.Card;
+import org.amphiprion.droidvirtualtable.entity.Group.Type;
 
 public class GameCard implements Serializable {
 
@@ -13,7 +14,7 @@ public class GameCard implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private boolean frontDisplayed;
 	private Card card;
-
+	private CardGroup container;
 	private CardMesh cardMesh;
 
 	public Card getCard() {
@@ -31,6 +32,7 @@ public class GameCard implements Serializable {
 	public void setCardMesh(CardMesh cardMesh) {
 		this.cardMesh = cardMesh;
 		cardMesh.setFrontDisplayed(frontDisplayed);
+		updateScale();
 	}
 
 	public boolean isFrontDisplayed() {
@@ -41,6 +43,28 @@ public class GameCard implements Serializable {
 		this.frontDisplayed = frontDisplayed;
 		if (cardMesh != null) {
 			cardMesh.setFrontDisplayed(frontDisplayed);
+		}
+	}
+
+	public CardGroup getContainer() {
+		return container;
+	}
+
+	public void setContainer(CardGroup container) {
+		this.container = container;
+		updateScale();
+	}
+
+	private void updateScale() {
+		if (cardMesh != null) {
+			if (container == null && container.getGroup().getType() != Type.PILE) {
+				// TODO mettre la taille du type de carte
+				cardMesh.scaleX = 0.63f;
+				cardMesh.scaleY = 0.88f;
+			} else {
+				cardMesh.scaleX = container.getGroup().getWidth() / 100.0f;
+				cardMesh.scaleY = container.getGroup().getHeight() / 100.0f;
+			}
 		}
 	}
 }

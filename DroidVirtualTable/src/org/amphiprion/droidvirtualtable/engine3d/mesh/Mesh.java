@@ -39,9 +39,13 @@ public class Mesh {
 	public float x;
 	public float y;
 	public float z;
+
+	public int rotationZ;
+
 	public float scaleX = 1;
 	public float scaleY = 1;
 	public float scaleZ = 1;
+
 	private String name;
 	private Texture texture;
 
@@ -98,6 +102,7 @@ public class Mesh {
 		Matrix.setIdentityM(mMMatrix, 0);
 		Matrix.translateM(mMMatrix, 0, x, y, z);
 		Matrix.scaleM(mMMatrix, 0, scaleX, scaleY, scaleZ);
+		Matrix.rotateM(mMMatrix, 0, rotationZ, 0, 0, 1);
 
 		Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
