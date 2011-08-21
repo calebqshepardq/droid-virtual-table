@@ -2,6 +2,7 @@ package org.amphiprion.droidvirtualtable.dto;
 
 import java.io.Serializable;
 
+import org.amphiprion.droidvirtualtable.engine3d.for2d.Image2D;
 import org.amphiprion.droidvirtualtable.engine3d.mesh.CardMesh;
 import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.Group.Type;
@@ -16,6 +17,7 @@ public class GameCard implements Serializable {
 	private Card card;
 	private CardGroup container;
 	private CardMesh cardMesh;
+	private Image2D image2D;
 
 	public Card getCard() {
 		return card;
@@ -27,6 +29,14 @@ public class GameCard implements Serializable {
 
 	public CardMesh getCardMesh() {
 		return cardMesh;
+	}
+
+	public Image2D getImage2D() {
+		return image2D;
+	}
+
+	public void setImage2D(Image2D image2d) {
+		image2D = image2d;
 	}
 
 	public void setCardMesh(CardMesh cardMesh) {
@@ -57,7 +67,7 @@ public class GameCard implements Serializable {
 
 	private void updateScale() {
 		if (cardMesh != null) {
-			if (container == null && container.getGroup().getType() != Type.PILE) {
+			if (container == null || container.getGroup().getType() != Type.PILE) {
 				// TODO mettre la taille du type de carte
 				cardMesh.scaleX = 0.63f;
 				cardMesh.scaleY = 0.88f;

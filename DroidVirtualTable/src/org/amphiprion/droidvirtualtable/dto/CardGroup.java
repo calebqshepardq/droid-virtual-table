@@ -23,7 +23,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.amphiprion.droidvirtualtable.engine3d.for2d.Image2D;
 import org.amphiprion.droidvirtualtable.entity.Group;
+import org.amphiprion.droidvirtualtable.entity.Group.Type;
 
 /**
  * @author Amphiprion
@@ -68,7 +70,11 @@ public class CardGroup implements Serializable {
 			if (card.getContainer() != null) {
 				card.getContainer().remove(card);
 			}
+			if (getGroup().getType() == Type.HAND) {
+				card.setImage2D(new Image2D(card.getCardMesh().getFrontTexture(), card.getCardMesh().getName()));
+			}
 			card.setContainer(this);
+
 		}
 	}
 
