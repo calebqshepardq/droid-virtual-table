@@ -43,6 +43,7 @@ public class ImportOctgnDeckTask extends AsyncTask<File, Integer, Deck> {
 	private ImportDeckListener caller;
 	private File file;
 	private String title;
+	private Exception exception;
 
 	/**
 	 * Default constructor.
@@ -66,6 +67,7 @@ public class ImportOctgnDeckTask extends AsyncTask<File, Integer, Deck> {
 			DeckDao.getInstance(caller.getContext()).getDatabase().setTransactionSuccessful();
 			return deck;
 		} catch (Exception e) {
+			exception = e;
 			Log.e(ApplicationConstants.PACKAGE, "" + file, e);
 			return null;
 		} finally {
@@ -86,7 +88,7 @@ public class ImportOctgnDeckTask extends AsyncTask<File, Integer, Deck> {
 		progress = ProgressDialog.show(caller.getContext(), "...", caller.getContext().getString(R.string.import_deck), true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				caller.importEnded(false, null);
+				caller.importEnded(false, null, exception);
 			}
 		});
 	}
@@ -110,7 +112,7 @@ public class ImportOctgnDeckTask extends AsyncTask<File, Integer, Deck> {
 		}
 		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
-			caller.importEnded(deck != null, deck);
+			caller.importEnded(deck != null, deck, exception);
 		}
 	}
 }

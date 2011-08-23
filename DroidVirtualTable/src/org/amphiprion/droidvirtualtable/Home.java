@@ -303,9 +303,11 @@ public class Home extends Activity {
 							task.importGame(new ImportGameListener() {
 
 								@Override
-								public void importEnded(boolean succeed, Game game) {
+								public void importEnded(boolean succeed, Game game, Exception exception) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
-									if (succeed) {
+									if (exception != null) {
+										DialogUtil.showErrorDialog(Home.this, getResources().getString(R.string.an_error_occurs), exception);
+									} else if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
 										initGameList();
 									}

@@ -303,9 +303,11 @@ public class SetListActivity extends Activity {
 							task.importSet(new ImportSetListener() {
 
 								@Override
-								public void importEnded(boolean succeed, GameSet set) {
+								public void importEnded(boolean succeed, GameSet set, Exception exception) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
-									if (succeed) {
+									if (exception != null) {
+										DialogUtil.showErrorDialog(SetListActivity.this, getResources().getString(R.string.an_error_occurs), exception);
+									} else if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
 										initSetList();
 									}

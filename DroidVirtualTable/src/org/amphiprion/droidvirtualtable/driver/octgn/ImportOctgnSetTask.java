@@ -47,6 +47,7 @@ public class ImportOctgnSetTask extends AsyncTask<File, Integer, GameSet> {
 	private ImportSetListener caller;
 	private File file;
 	private String title;
+	private Exception exception;
 
 	/**
 	 * Default constructor.
@@ -87,6 +88,7 @@ public class ImportOctgnSetTask extends AsyncTask<File, Integer, GameSet> {
 			GameSetDao.getInstance(caller.getContext()).getDatabase().setTransactionSuccessful();
 			return set;
 		} catch (Exception e) {
+			exception = e;
 			Log.e(ApplicationConstants.PACKAGE, "" + file, e);
 			return null;
 		} finally {
@@ -110,7 +112,7 @@ public class ImportOctgnSetTask extends AsyncTask<File, Integer, GameSet> {
 		progress = ProgressDialog.show(caller.getContext(), "...", caller.getContext().getString(R.string.import_set), true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				caller.importEnded(false, null);
+				caller.importEnded(false, null, exception);
 			}
 		});
 	}
@@ -134,7 +136,7 @@ public class ImportOctgnSetTask extends AsyncTask<File, Integer, GameSet> {
 		}
 		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
-			caller.importEnded(set != null, set);
+			caller.importEnded(set != null, set, exception);
 		}
 	}
 }

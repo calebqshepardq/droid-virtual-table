@@ -304,9 +304,11 @@ public class DeckListActivity extends Activity {
 							task.importDeck(new ImportDeckListener() {
 
 								@Override
-								public void importEnded(boolean succeed, Deck deck) {
+								public void importEnded(boolean succeed, Deck deck, Exception exception) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
-									if (succeed) {
+									if (exception != null) {
+										DialogUtil.showErrorDialog(DeckListActivity.this, getResources().getString(R.string.an_error_occurs), exception);
+									} else if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
 										initDeckList();
 									}

@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">DroidVirtualTable</string>
 
+	<string name="an_error_occurs">Une erreur est survenue</string>
+
 	<string name="ok">Ok</string>
 
 	<string name="activity_games">Liste des jeux disponibles</string>
