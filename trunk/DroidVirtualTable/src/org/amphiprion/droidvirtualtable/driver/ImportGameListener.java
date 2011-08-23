@@ -5,7 +5,7 @@ import org.amphiprion.droidvirtualtable.entity.Game;
 import android.content.Context;
 
 public interface ImportGameListener {
-	void importEnded(boolean succeed, Game game);
+	void importEnded(boolean succeed, Game game, Exception e);
 
 	Context getContext();
 }

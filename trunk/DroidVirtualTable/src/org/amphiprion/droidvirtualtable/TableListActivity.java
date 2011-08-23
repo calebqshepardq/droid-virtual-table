@@ -341,9 +341,11 @@ public class TableListActivity extends Activity {
 							task.importTable(new ImportTableListener() {
 
 								@Override
-								public void importEnded(boolean succeed, Table table) {
+								public void importEnded(boolean succeed, Table table, Exception exception) {
 									Log.d(ApplicationConstants.PACKAGE, "import ended");
-									if (succeed) {
+									if (exception != null) {
+										DialogUtil.showErrorDialog(TableListActivity.this, getResources().getString(R.string.an_error_occurs), exception);
+									} else if (succeed) {
 										Log.d(ApplicationConstants.PACKAGE, "on refresh");
 										initTableList();
 									}

@@ -44,6 +44,7 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 	private ImportGameListener caller;
 	private File file;
 	private String title;
+	private Exception exception;
 
 	/**
 	 * Default constructor.
@@ -82,6 +83,7 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 			GameDao.getInstance(caller.getContext()).getDatabase().setTransactionSuccessful();
 			return game;
 		} catch (Exception e) {
+			exception = e;
 			Log.e(ApplicationConstants.PACKAGE, "" + file, e);
 			return null;
 		} finally {
@@ -101,7 +103,7 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 		progress = ProgressDialog.show(caller.getContext(), "...", caller.getContext().getString(R.string.import_game), true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				caller.importEnded(false, null);
+				caller.importEnded(false, null, exception);
 			}
 		});
 	}
@@ -123,7 +125,7 @@ public class ImportOctgnGameTask extends AsyncTask<File, Integer, Game> {
 		}
 		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
-			caller.importEnded(game != null, game);
+			caller.importEnded(game != null, game, exception);
 		}
 	}
 }

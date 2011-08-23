@@ -18,4 +18,27 @@ public class DialogUtil {
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
+
+	public static void showErrorDialog(Context context, String message, Exception e) {
+		String str = message;
+		Throwable t = e;
+		while (t != null) {
+			str += "Cause-> " + t.getMessage() + " ";
+			StackTraceElement[] sts = t.getStackTrace();
+			for (StackTraceElement ste : sts) {
+				str += ste.getClassName() + "." + ste.getMethodName() + ": line " + ste.getLineNumber();
+			}
+			t = t.getCause();
+		}
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setMessage(str).setCancelable(false).setPositiveButton(context.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
 }

@@ -45,6 +45,7 @@ public class ImportDvtTableTask extends AsyncTask<File, Integer, Table> {
 	private ImportTableListener caller;
 	private File file;
 	private String title;
+	private Exception exception;
 
 	/**
 	 * Default constructor.
@@ -78,6 +79,7 @@ public class ImportDvtTableTask extends AsyncTask<File, Integer, Table> {
 			TableDao.getInstance(caller.getContext()).getDatabase().setTransactionSuccessful();
 			return table;
 		} catch (Exception e) {
+			exception = e;
 			Log.e(ApplicationConstants.PACKAGE, "" + file, e);
 			return null;
 		} finally {
@@ -101,7 +103,7 @@ public class ImportDvtTableTask extends AsyncTask<File, Integer, Table> {
 		progress = ProgressDialog.show(caller.getContext(), "...", caller.getContext().getString(R.string.import_table), true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				caller.importEnded(false, null);
+				caller.importEnded(false, null, exception);
 			}
 		});
 	}
@@ -125,7 +127,7 @@ public class ImportDvtTableTask extends AsyncTask<File, Integer, Table> {
 		}
 		Log.d(ApplicationConstants.PACKAGE, "onPostExecute");
 		if (!isCancelled()) {
-			caller.importEnded(table != null, table);
+			caller.importEnded(table != null, table, exception);
 		}
 	}
 }
