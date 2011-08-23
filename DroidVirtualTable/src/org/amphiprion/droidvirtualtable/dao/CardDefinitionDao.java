@@ -132,6 +132,8 @@ public class CardDefinitionDao extends AbstractDao {
 			execSQL(sql, params);
 
 			getDatabase().setTransactionSuccessful();
+			def.setState(DbState.LOADED);
+
 		} finally {
 			getDatabase().endTransaction();
 		}

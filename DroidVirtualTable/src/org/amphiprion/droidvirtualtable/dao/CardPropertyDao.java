@@ -131,6 +131,8 @@ public class CardPropertyDao extends AbstractDao {
 			execSQL(sql, params);
 
 			getDatabase().setTransactionSuccessful();
+			prop.setState(DbState.LOADED);
+
 		} finally {
 			getDatabase().endTransaction();
 		}

@@ -103,6 +103,7 @@ public class DvtTableHandler {
 				rootDir.mkdirs();
 				table.setName(name);
 				TableDao.getInstance(context).persist(table);
+
 				File[] files = currentDir.listFiles();
 				for (File file : files) {
 					count++;

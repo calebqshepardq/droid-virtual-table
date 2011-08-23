@@ -105,6 +105,8 @@ public class CardValueDao extends AbstractDao {
 			execSQL(sql, params);
 
 			getDatabase().setTransactionSuccessful();
+			entity.setState(DbState.LOADED);
+
 		} finally {
 			getDatabase().endTransaction();
 		}

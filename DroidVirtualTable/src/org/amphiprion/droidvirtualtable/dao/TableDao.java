@@ -158,10 +158,9 @@ public class TableDao extends AbstractDao {
 			params[1] = entity.getGame().getId();
 			params[2] = entity.getName();
 			params[3] = entity.getMaxLocation();
-
 			execSQL(sql, params);
-
 			getDatabase().setTransactionSuccessful();
+			entity.setState(DbState.LOADED);
 		} finally {
 			getDatabase().endTransaction();
 		}
