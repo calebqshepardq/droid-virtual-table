@@ -184,6 +184,8 @@ public class GameDao extends AbstractDao {
 			execSQL(sql, params);
 
 			getDatabase().setTransactionSuccessful();
+			game.setState(DbState.LOADED);
+
 		} finally {
 			getDatabase().endTransaction();
 		}

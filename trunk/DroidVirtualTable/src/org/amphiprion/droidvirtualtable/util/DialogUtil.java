@@ -23,10 +23,10 @@ public class DialogUtil {
 		String str = message;
 		Throwable t = e;
 		while (t != null) {
-			str += "Cause-> " + t.getMessage() + " ";
+			str += "\nCause-> " + t.getMessage();
 			StackTraceElement[] sts = t.getStackTrace();
 			for (StackTraceElement ste : sts) {
-				str += ste.getClassName() + "." + ste.getMethodName() + ": line " + ste.getLineNumber();
+				str += "\n" + ste.getClassName() + "." + ste.getMethodName() + ": line " + ste.getLineNumber();
 			}
 			t = t.getCause();
 		}
