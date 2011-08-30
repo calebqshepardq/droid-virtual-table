@@ -58,24 +58,39 @@ public class CardGroup implements Serializable {
 		return cards;
 	}
 
+	public void move(int sourceIndex, int insertAt) {
+		GameCard card = cards.remove(sourceIndex);
+		cards.add(insertAt, card);
+	}
+
 	public void add(GameCard card) {
 		synchronized (cards) {
-			// TODO gerer me, et la liste de user
-			if (group.getVisibility() == Group.Visibility.none) {
-				card.setFrontDisplayed(false);
-			} else if (group.getVisibility() == Group.Visibility.all) {
-				card.setFrontDisplayed(true);
-			}
+
 			cards.add(card);
 			if (card.getContainer() != null) {
 				card.getContainer().remove(card);
 			}
 			if (getGroup().getType() == Type.HAND) {
-				card.setImage2D(new Image2D(card.getCardMesh().getFrontTexture(), card.getCardMesh().getName()));
+				card.setImage2D(new Image2D(card.getCardMesh().getTexture(true), card.getCardMesh().getName()));
 			}
 			card.setContainer(this);
 
 		}
+	}
+
+	public boolean isFrontDisplayed(GameCard card, String myName, String playerName) {
+		if (group.getVisibility() == Group.Visibility.none) {
+			return false;
+		} else if (group.getVisibility() == Group.Visibility.all) {
+			return true;
+		} else if (group.getVisibility() == Group.Visibility.me) {
+			return myName.equals(playerName);
+		} else if (group.getVisibility() == Group.Visibility.undefined) {
+			return card.isFrontDisplayed();
+		} else if (group.getVisibility() == Group.Visibility.PLAYERS) {
+			return group.getVisibilityValue().indexOf("|" + playerName + "|") != -1;
+		}
+		return false;
 	}
 
 	public void remove(GameCard card) {

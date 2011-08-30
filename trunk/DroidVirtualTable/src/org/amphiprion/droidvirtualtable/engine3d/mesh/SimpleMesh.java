@@ -17,35 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with DroidVirtualTable.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.amphiprion.droidvirtualtable.dto;
+package org.amphiprion.droidvirtualtable.engine3d.mesh;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import org.amphiprion.droidvirtualtable.engine3d.util.Texture;
 
-import org.amphiprion.droidvirtualtable.engine3d.mesh.AbstractMesh;
-import org.amphiprion.droidvirtualtable.entity.Table;
+/**
+ * @author Amphiprion
+ * 
+ */
+public class SimpleMesh extends AbstractMesh {
+	private Texture texture;
 
-public class GameTable implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	private Table table;
-	private List<AbstractMesh> meshes;
-
-	public GameTable(Table table) {
-		this.table = table;
-		meshes = new ArrayList<AbstractMesh>();
+	public SimpleMesh(String name) {
+		super(name);
 	}
 
-	public Table getTable() {
-		return table;
+	public void setTexture(Texture texture) {
+		this.texture = texture;
 	}
 
-	public List<AbstractMesh> getMeshes() {
-		return meshes;
+	public Texture getTexture() {
+		return texture;
 	}
 
+	@Override
+	public Texture getTexture(boolean front) {
+		return texture;
+	}
 }

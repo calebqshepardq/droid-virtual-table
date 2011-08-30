@@ -29,7 +29,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
-public class Mesh {
+public abstract class AbstractMesh {
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 8 * FLOAT_SIZE_BYTES;
 	private static final int TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
@@ -47,13 +47,12 @@ public class Mesh {
 	public float scaleZ = 1;
 
 	private String name;
-	private Texture texture;
 
 	private FloatBuffer verticePropertyBuffer;
 	private ShortBuffer indiceBuffer;
 	private int indiceCount;
 
-	public Mesh(String name) {
+	public AbstractMesh(String name) {
 		this.name = name;
 	}
 
@@ -89,16 +88,13 @@ public class Mesh {
 		this.indiceBuffer = indiceBuffer;
 	}
 
-	public Texture getTexture() {
-		return texture;
-	}
+	public abstract Texture getTexture(boolean front);
 
-	public void setTexture(Texture texture) {
-		this.texture = texture;
-	}
-
-	public void draw(int _program, float[] mMMatrix, float[] mVMatrix, float[] mMVPMatrix, float[] mProjMatrix, float[] normalMatrix, float[] mLightPosInEyeSpace,
+	public void draw(boolean front, int _program, float[] mMMatrix, float[] mVMatrix, float[] mMVPMatrix, float[] mProjMatrix, float[] normalMatrix, float[] mLightPosInEyeSpace,
 			float[] lightColor, float[] matAmbient, float[] matDiffuse, float[] matSpecular, float matShininess, float[] eyePos) {
+
+		Texture texture = getTexture(front);
+
 		Matrix.setIdentityM(mMMatrix, 0);
 		Matrix.translateM(mMMatrix, 0, x, y, z);
 		Matrix.scaleM(mMMatrix, 0, scaleX, scaleY, scaleZ);
@@ -151,9 +147,9 @@ public class Mesh {
 		// Texture info
 
 		// bind textures
-		if (getTexture() != null) {// && enableTexture) {
+		if (texture != null) {// && enableTexture) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, getTexture().textureId);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.textureId);
 			GLES20.glUniform1i(GLES20.glGetUniformLocation(_program, "texture1"), 0);
 		}
 
