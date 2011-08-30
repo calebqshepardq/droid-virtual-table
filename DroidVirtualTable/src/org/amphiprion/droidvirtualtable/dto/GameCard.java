@@ -41,19 +41,15 @@ public class GameCard implements Serializable {
 
 	public void setCardMesh(CardMesh cardMesh) {
 		this.cardMesh = cardMesh;
-		cardMesh.setFrontDisplayed(frontDisplayed);
 		updateScale();
 	}
 
-	public boolean isFrontDisplayed() {
+	protected boolean isFrontDisplayed() {
 		return frontDisplayed;
 	}
 
 	public void setFrontDisplayed(boolean frontDisplayed) {
 		this.frontDisplayed = frontDisplayed;
-		if (cardMesh != null) {
-			cardMesh.setFrontDisplayed(frontDisplayed);
-		}
 	}
 
 	public CardGroup getContainer() {

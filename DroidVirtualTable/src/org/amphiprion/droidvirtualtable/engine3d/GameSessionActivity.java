@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -88,5 +89,10 @@ public class GameSessionActivity extends Activity {
 	protected void onDestroy() {
 		TextureUtil.unloadAll();
 		super.onDestroy();
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		return renderer.onTouchEvent(event);
 	}
 }

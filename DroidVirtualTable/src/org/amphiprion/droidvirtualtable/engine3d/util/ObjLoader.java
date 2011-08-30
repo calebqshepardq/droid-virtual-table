@@ -33,7 +33,8 @@ import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import org.amphiprion.droidvirtualtable.engine3d.mesh.Mesh;
+import org.amphiprion.droidvirtualtable.engine3d.mesh.AbstractMesh;
+import org.amphiprion.droidvirtualtable.engine3d.mesh.SimpleMesh;
 
 /**
  * @author Amphiprion
@@ -43,12 +44,12 @@ public class ObjLoader {
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
-	public static List<Mesh> loadObjects(GL10 gl, String textureUriPrefix, File objFile) throws Exception {
+	public static List<AbstractMesh> loadObjects(GL10 gl, String textureUriPrefix, File objFile) throws Exception {
 
 		HashMap<String, String> materialTextures = null;
 
-		ArrayList<Mesh> meshes = new ArrayList<Mesh>();
-		Mesh currentMesh = null;
+		ArrayList<AbstractMesh> meshes = new ArrayList<AbstractMesh>();
+		SimpleMesh currentMesh = null;
 
 		ArrayList<Float> vs = new ArrayList<Float>(100); // vertices x/y/z
 		ArrayList<Float> tc = new ArrayList<Float>(100); // texture coords u/v
@@ -62,7 +63,7 @@ public class ObjLoader {
 			if ("mtllib".equals(type)) {
 				materialTextures = parseMaterialFile(new File(objFile.getParentFile(), elements[1]));
 			} else if ("o".equals(type)) {
-				currentMesh = new Mesh(elements[1]);
+				currentMesh = new SimpleMesh(elements[1]);
 				str = updateMesh(gl, textureUriPrefix, currentMesh, objReader, materialTextures, vs, tc, ns);
 				meshes.add(currentMesh);
 				continue;
@@ -82,7 +83,7 @@ public class ObjLoader {
 		return meshes;
 	}
 
-	private static String updateMesh(GL10 gl, String textureUriPrefix, Mesh mesh, BufferedReader reader, HashMap<String, String> materialTextures, ArrayList<Float> vs,
+	private static String updateMesh(GL10 gl, String textureUriPrefix, SimpleMesh mesh, BufferedReader reader, HashMap<String, String> materialTextures, ArrayList<Float> vs,
 			ArrayList<Float> tc, ArrayList<Float> ns) throws Exception {
 
 		ArrayList<Float> vertexPropertiesBuffer = new ArrayList<Float>(600);

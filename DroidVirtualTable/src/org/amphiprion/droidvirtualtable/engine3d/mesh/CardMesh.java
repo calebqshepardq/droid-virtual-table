@@ -33,13 +33,12 @@ import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 
 import android.util.Log;
 
-public class CardMesh extends Mesh {
+public class CardMesh extends AbstractMesh {
 	public static float CARD_HEIGHT = 0.005f;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
-	private boolean frontDisplayed;
 	private Texture backTexture;
 	private Texture frontTexture;
 
@@ -76,7 +75,6 @@ public class CardMesh extends Mesh {
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "loadTexture", e);
 		}
-		setFrontDisplayed(false);
 
 		float u = (float) backTexture.originalWidth / backTexture.width;
 		float v = (float) backTexture.originalHeight / backTexture.height;
@@ -151,21 +149,14 @@ public class CardMesh extends Mesh {
 
 	}
 
-	public Texture getFrontTexture() {
-		return frontTexture;
-	}
-
-	public boolean isFrontDisplayed() {
-		return frontDisplayed;
-	}
-
-	public void setFrontDisplayed(boolean frontDisplayed) {
-		this.frontDisplayed = frontDisplayed;
-		if (frontDisplayed) {
-			setTexture(frontTexture);
+	@Override
+	public Texture getTexture(boolean front) {
+		if (front) {
+			return frontTexture;
 		} else {
-			setTexture(backTexture);
+			return backTexture;
 		}
-	}
+
+	};
 
 }

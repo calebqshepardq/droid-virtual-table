@@ -35,7 +35,7 @@ import org.amphiprion.droidvirtualtable.engine3d.util.TextureUtil;
 import android.content.Context;
 import android.util.Log;
 
-public class CardPile extends Mesh {
+public class CardPile extends SimpleMesh {
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int SHORT_SIZE_BYTES = 2;
 
