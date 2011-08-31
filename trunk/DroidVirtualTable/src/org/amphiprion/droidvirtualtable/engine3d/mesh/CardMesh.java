@@ -159,4 +159,13 @@ public class CardMesh extends AbstractMesh {
 
 	};
 
+	@Override
+	public float getWidth() {
+		return scaleX;
+	}
+
+	@Override
+	public float getHeight() {
+		return scaleY;
+	}
 }

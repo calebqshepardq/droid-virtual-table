@@ -44,4 +44,15 @@ public class SimpleMesh extends AbstractMesh {
 	public Texture getTexture(boolean front) {
 		return texture;
 	}
+
+	@Override
+	public float getWidth() {
+		return 0;
+	}
+
+	@Override
+	public float getHeight() {
+		return 0;
+	}
+
 }
