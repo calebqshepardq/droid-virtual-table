@@ -141,4 +141,15 @@ public class CardPile extends SimpleMesh {
 		indicesBuffer = null;
 
 	}
+
+	@Override
+	public float getWidth() {
+		return scaleX;
+	}
+
+	@Override
+	public float getHeight() {
+		return scaleY;
+	}
+
 }

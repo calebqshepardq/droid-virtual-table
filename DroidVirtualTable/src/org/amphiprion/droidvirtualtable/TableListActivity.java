@@ -233,22 +233,22 @@ public class TableListActivity extends Activity {
 					Player p = new Player();
 					p.setName("Gerald");
 					p.setLocationName("A");
-					String deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Chaos Starter Deck").getId();
+					String deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Dwarf Starter Deck").getId();
 					p.setDeck(DeckDao.getInstance(TableListActivity.this).buidGameDeck(deckId));
 					for (Group group : groups) {
 						Log.d(ApplicationConstants.PACKAGE, "group=" + group.getName());
 
-						p.addCardGroup(new CardGroup(group));
+						p.addCardGroup(new CardGroup(group, p));
 					}
 					gameSession.getPlayers().add(p);
 
 					p = new Player();
 					p.setName("Emma");
 					p.setLocationName("B");
-					deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Dwarf Starter Deck").getId();
+					deckId = DeckDao.getInstance(TableListActivity.this).getDeck(game.getId(), "Chaos Starter Deck").getId();
 					p.setDeck(DeckDao.getInstance(TableListActivity.this).buidGameDeck(deckId));
 					for (Group group : groups) {
-						p.addCardGroup(new CardGroup(group));
+						p.addCardGroup(new CardGroup(group, p));
 					}
 					gameSession.getPlayers().add(p);
 

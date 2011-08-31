@@ -43,6 +43,7 @@ import org.amphiprion.droidvirtualtable.engine3d.mesh.CardPile;
 import org.amphiprion.droidvirtualtable.engine3d.shader.Shader;
 import org.amphiprion.droidvirtualtable.engine3d.util.GameTableLoader;
 import org.amphiprion.droidvirtualtable.entity.Group;
+import org.amphiprion.droidvirtualtable.util.SceneUtil;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -117,7 +118,8 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	private float screenRatio;
 	private int realWidth;
 	private int realHeight;
-	private float screenScale = 1;
+	private float screenScaleX = 1;
+	private float screenScaleY = 1;
 
 	// TODO temporaire
 	CardPile cardPile;
@@ -186,6 +188,15 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// Get buffers from mesh
 		List<AbstractMesh> meshes = gameSession.getGameTable().getMeshes();
 
+		if (controlerState.move && selectedCard != null && selectedCard.getContainer().getGroup().getType() != Group.Type.HAND
+				&& selectedCard.getContainer().getGroup().getType() != Group.Type.TABLE) {
+			selectedCard.getContainer().remove(selectedCard);
+			myself.getCardGroup("Table").add(selectedCard);
+			selectedCard.setFrontDisplayed(true);
+			selectedCard.getCardMesh().z = 3 * CardMesh.CARD_HEIGHT / 2; // Just
+																			// for
+																			// test
+		}
 		for (AbstractMesh mesh : meshes) {
 			mesh.draw(true, _program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
 					matShininess, eyePos);
@@ -193,7 +204,30 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 		for (Player p : gameSession.getPlayers()) {
 			for (CardGroup cg : p.getCardGroups()) {
-				if (cg.getGroup().getType() != Group.Type.HAND) {
+				if (cg.getGroup().getType() == Group.Type.TABLE) {
+					for (GameCard card : cg.getCards()) {
+						CardMesh cardMesh = card.getCardMesh();
+						// TODO par courir tous les element pour voir si je suis
+						// sur un element afin de définir le Z de la carte
+						if (controlerState.move && card == selectedCard) {
+							float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, 0f);
+							cardMesh.x = intersect[0];
+							cardMesh.y = intersect[1];
+						}
+						// cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT *
+						// (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
+						cardMesh.globalPlayerRotationZ = p.getTableLocation().getGlobalRotation();
+						cardMesh.draw(cg.isFrontDisplayed(card, myself.getName()), _program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace,
+								lightColor, matAmbient, matDiffuse, matSpecular, matShininess, eyePos);
+
+						if (mustSelectCard) {
+							float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, cardMesh.z);
+							if (Math.abs(intersect[0] - cardMesh.x) < cardMesh.getWidth() / 2 && Math.abs(intersect[1] - cardMesh.y) < cardMesh.getHeight() / 2) {
+								selectedCard = card;
+							}
+						}
+					}
+				} else if (cg.getGroup().getType() != Group.Type.HAND) {
 
 					TableZone tz = p.getTableLocation().getTableZone(cg.getGroup().getName());
 					int nbCard = cg.count();
@@ -217,8 +251,16 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 						cardMesh.y = tz.getY();
 						cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT * (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
 						cardMesh.globalPlayerRotationZ = p.getTableLocation().getGlobalRotation();
-						cardMesh.draw(cg.isFrontDisplayed(card, "ME", p.getName()), _program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace,
+						cardMesh.draw(cg.isFrontDisplayed(card, myself.getName()), _program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace,
 								lightColor, matAmbient, matDiffuse, matSpecular, matShininess, eyePos);
+
+						// ///
+						if (mustSelectCard) {
+							float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, cardMesh.z);
+							if (Math.abs(intersect[0] - cardMesh.x) < cardMesh.getWidth() / 2 && Math.abs(intersect[1] - cardMesh.y) < cardMesh.getHeight() / 2) {
+								selectedCard = card;
+							}
+						}
 					}
 				}
 			}
@@ -251,7 +293,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 			img.scaleY = 138f / img.getTexture().originalHeight;
 			img.x = offsetX;
 			img.y = 698;
-			if (mustSelectCard && Math.abs(offsetX - controlerState.x) <= 99 / 2) {
+			if (mustSelectCard && controlerState.y > 698 - 138 / 2 && Math.abs(offsetX - controlerState.x) <= 99 / 2) {
 				selectedCard = card;
 			}
 			offsetX += 99 + 5;
@@ -290,8 +332,8 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 		if (showDetail != null) {
 			Image2D img = showDetail.getImage2D();
-			img.scaleX = 1f / screenScale;
-			img.scaleY = 1f / screenScale;
+			img.scaleX = 1f / screenScaleX;
+			img.scaleY = 1f / screenScaleY;
 			img.x = 1280 / 2;
 			img.y = 768 / 2;
 			img.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, m2DProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, matShininess,
@@ -310,10 +352,10 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		Log.d(ApplicationConstants.PACKAGE, "height=" + height);
 		realWidth = width;
 		realHeight = height;
-		screenScale = Math.min(width / 1280.0f, height / 800.0f);
+		screenScaleX = width / 1280.0f;
+		screenScaleY = height / 768.0f;
 
 		GLES20.glViewport(0, 0, width, height);
 		float ratio = (float) width / height;
@@ -450,22 +492,23 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			controlerState.down = true;
 			controlerState.downAt = System.currentTimeMillis();
-			controlerState.x = event.getX() / screenScale;
-			controlerState.y = event.getY() / screenScale;
+			controlerState.x = event.getX() / screenScaleX;
+			controlerState.y = event.getY() / screenScaleY;
 			mustSelectCard = true;
+
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			controlerState.clear();
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (controlerState.move || Math.abs(event.getX() / screenScale - controlerState.x) > 10 / screenScale
-					|| Math.abs(event.getY() / screenScale - controlerState.y) > 10 / screenScale) {
+			if (controlerState.move || Math.abs(event.getX() / screenScaleX - controlerState.x) > 10 / screenScaleX
+					|| Math.abs(event.getY() / screenScaleY - controlerState.y) > 10 / screenScaleY) {
 				controlerState.move = true;
 				showDetail = null;
 				// calculer dx, dy -> delta global par rapport au point
 				// d'origine
-				controlerState.dx += event.getX() / screenScale - controlerState.x;
-				controlerState.dy += event.getY() / screenScale - controlerState.y;
-				controlerState.x = event.getX() / screenScale;
-				controlerState.y = event.getY() / screenScale;
+				controlerState.dx += event.getX() / screenScaleX - controlerState.x;
+				controlerState.dy += event.getY() / screenScaleY - controlerState.y;
+				controlerState.x = event.getX() / screenScaleX;
+				controlerState.y = event.getY() / screenScaleY;
 			}
 		}
 
@@ -478,8 +521,10 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		} else if (showDetail == null && controlerState.down && !controlerState.move) {
 			if (System.currentTimeMillis() - controlerState.downAt > 1000) {
 				if (selectedCard != null) {
-					showDetail = selectedCard;
-					showDetail.setImage2D(new Image2D(showDetail.getCardMesh().getTexture(true), showDetail.getCardMesh().getName()));
+					if (selectedCard.getContainer().isFrontDisplayed(selectedCard, myself.getName())) {
+						showDetail = selectedCard;
+						showDetail.setImage2D(new Image2D(showDetail.getCardMesh().getTexture(true), showDetail.getCardMesh().getName()));
+					}
 				}
 			}
 		}

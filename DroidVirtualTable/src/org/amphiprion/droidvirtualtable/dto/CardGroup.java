@@ -40,9 +40,11 @@ public class CardGroup implements Serializable {
 
 	private Group group;
 	private List<GameCard> cards;
+	private Player owner;
 
-	public CardGroup(Group group) {
+	public CardGroup(Group group, Player owner) {
 		this.group = group;
+		this.owner = owner;
 		cards = new ArrayList<GameCard>();
 	}
 
@@ -78,17 +80,17 @@ public class CardGroup implements Serializable {
 		}
 	}
 
-	public boolean isFrontDisplayed(GameCard card, String myName, String playerName) {
+	public boolean isFrontDisplayed(GameCard card, String myName) {
 		if (group.getVisibility() == Group.Visibility.none) {
 			return false;
 		} else if (group.getVisibility() == Group.Visibility.all) {
 			return true;
 		} else if (group.getVisibility() == Group.Visibility.me) {
-			return myName.equals(playerName);
+			return myName.equals(owner.getName());
 		} else if (group.getVisibility() == Group.Visibility.undefined) {
 			return card.isFrontDisplayed();
 		} else if (group.getVisibility() == Group.Visibility.PLAYERS) {
-			return group.getVisibilityValue().indexOf("|" + playerName + "|") != -1;
+			return group.getVisibilityValue().indexOf("|" + myName + "|") != -1;
 		}
 		return false;
 	}
@@ -107,5 +109,13 @@ public class CardGroup implements Serializable {
 			cards.remove(cards.size() - 1);
 		}
 		return c;
+	}
+
+	public Player getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Player owner) {
+		this.owner = owner;
 	}
 }

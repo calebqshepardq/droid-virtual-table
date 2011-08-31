@@ -186,4 +186,9 @@ public abstract class AbstractMesh {
 			throw new RuntimeException(op + ": glError " + error);
 		}
 	}
+
+	public abstract float getWidth();
+
+	public abstract float getHeight();
+
 }
