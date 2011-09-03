@@ -65,11 +65,22 @@ public class GameCard implements Serializable {
 		if (cardMesh != null) {
 			if (container == null || container.getGroup().getType() != Type.PILE) {
 				// TODO mettre la taille du type de carte
-				cardMesh.scaleX = 0.63f;
-				cardMesh.scaleY = 0.88f;
+				if (cardMesh.isLandscape()) {
+					cardMesh.scaleX = 0.88f;
+					cardMesh.scaleY = 0.63f;
+					cardMesh.ownRotationZ = 0;
+				} else {
+					cardMesh.scaleX = 0.63f;
+					cardMesh.scaleY = 0.88f;
+				}
 			} else {
 				cardMesh.scaleX = container.getGroup().getWidth() / 100.0f;
 				cardMesh.scaleY = container.getGroup().getHeight() / 100.0f;
+				if (cardMesh.scaleX < cardMesh.scaleY && cardMesh.isLandscape()) {
+					cardMesh.ownRotationZ = 90;
+				} else {
+					cardMesh.ownRotationZ = 0;
+				}
 			}
 		}
 	}

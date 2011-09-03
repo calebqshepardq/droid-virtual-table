@@ -41,6 +41,7 @@ public class CardMesh extends AbstractMesh {
 
 	private Texture backTexture;
 	private Texture frontTexture;
+	private boolean landscape;
 
 	public CardMesh(GL10 gl, String name, String uriBack, String uriFront) {
 		super(name);
@@ -75,9 +76,13 @@ public class CardMesh extends AbstractMesh {
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "loadTexture", e);
 		}
-
-		float u = (float) backTexture.originalWidth / backTexture.width;
-		float v = (float) backTexture.originalHeight / backTexture.height;
+		if (frontTexture.originalWidth > frontTexture.originalHeight) {
+			landscape = true;
+		} else {
+			landscape = false;
+		}
+		float u = (float) frontTexture.originalWidth / frontTexture.width;
+		float v = (float) frontTexture.originalHeight / frontTexture.height;
 		float[] textureCoordinates = new float[] { 0.0f, 0.0f, //
 				0.0f, v, //
 				u, v, //
@@ -167,5 +172,9 @@ public class CardMesh extends AbstractMesh {
 	@Override
 	public float getHeight() {
 		return scaleY;
+	}
+
+	public boolean isLandscape() {
+		return landscape;
 	}
 }
