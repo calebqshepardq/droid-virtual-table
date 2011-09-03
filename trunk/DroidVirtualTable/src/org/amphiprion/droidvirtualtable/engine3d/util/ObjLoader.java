@@ -96,6 +96,12 @@ public class ObjLoader {
 
 		String str = reader.readLine();
 		short index = 0;
+		float minX = Float.MAX_VALUE;
+		float maxX = Float.MIN_VALUE;
+		float minY = Float.MAX_VALUE;
+		float maxY = Float.MIN_VALUE;
+		float minZ = Float.MAX_VALUE;
+		float maxZ = Float.MIN_VALUE;
 		while (str != null) {
 			elements = str.split(" ");
 			type = elements[0];
@@ -131,9 +137,30 @@ public class ObjLoader {
 					indicesBuffer.add(index++);
 
 					// Add all the vertex info
-					vertexPropertiesBuffer.add(vs.get(vert * 3)); // x
-					vertexPropertiesBuffer.add(vs.get(vert * 3 + 1));// y
-					vertexPropertiesBuffer.add(vs.get(vert * 3 + 2));// z
+					float x = vs.get(vert * 3);
+					float y = vs.get(vert * 3 + 1);
+					float z = vs.get(vert * 3 + 2);
+					if (x > maxX) {
+						maxX = x;
+					}
+					if (x < minX) {
+						minX = x;
+					}
+					if (y > maxY) {
+						maxY = y;
+					}
+					if (y < minY) {
+						minY = y;
+					}
+					if (z > maxZ) {
+						maxZ = z;
+					}
+					if (z < minZ) {
+						minZ = z;
+					}
+					vertexPropertiesBuffer.add(x); // x
+					vertexPropertiesBuffer.add(y);// y
+					vertexPropertiesBuffer.add(z);// z
 
 					// add the normal info
 					vertexPropertiesBuffer.add(ns.get(vertN * 3)); // x
@@ -171,7 +198,7 @@ public class ObjLoader {
 		sb.position(0);
 		mesh.setIndiceBuffer(sb);
 		mesh.setIndiceCount(indices.length);
-
+		mesh.setBounds(minX, maxX, minY, maxY, minZ, maxZ);
 		// release to enhance GC
 		vertexProperties = null;
 		indices = null;

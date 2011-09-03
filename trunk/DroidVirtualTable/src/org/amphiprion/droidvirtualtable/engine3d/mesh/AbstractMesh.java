@@ -46,6 +46,13 @@ public abstract class AbstractMesh {
 	public float scaleY = 1;
 	public float scaleZ = 1;
 
+	private float minX;
+	private float maxX;
+	private float minY;
+	private float maxY;
+	private float minZ;
+	private float maxZ;
+
 	private String name;
 
 	private FloatBuffer verticePropertyBuffer;
@@ -185,6 +192,39 @@ public abstract class AbstractMesh {
 			Log.e(ApplicationConstants.PACKAGE, op + ": glError " + error);
 			throw new RuntimeException(op + ": glError " + error);
 		}
+	}
+
+	public void setBounds(float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
+		this.minX = minX;
+		this.maxX = maxX;
+		this.minY = minY;
+		this.maxY = maxY;
+		this.minZ = minZ;
+		this.maxZ = maxZ;
+	}
+
+	public float getMinX() {
+		return minX;
+	}
+
+	public float getMaxX() {
+		return maxX;
+	}
+
+	public float getMinY() {
+		return minY;
+	}
+
+	public float getMaxY() {
+		return maxY;
+	}
+
+	public float getMinZ() {
+		return minZ;
+	}
+
+	public float getMaxZ() {
+		return maxZ;
 	}
 
 	public abstract float getWidth();

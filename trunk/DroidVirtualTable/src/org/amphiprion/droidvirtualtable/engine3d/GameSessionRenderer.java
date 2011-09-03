@@ -112,6 +112,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 	private int angleCameraX;
 	private int angleCameraZ;
 
+	private CardGroup dropIn;
 	// Shader
 	private Shader shader;
 
@@ -142,6 +143,14 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
+		// touch up, process here to avoid concurent list modification
+		if (!controlerState.down && dropIn != null && selectedCard != null) {
+			selectedCard.getContainer().remove(selectedCard);
+			dropIn.add(selectedCard);
+			dropIn = null;
+			selectedCard = null;
+		}
+
 		// avoid clearing a mustSelectCard that have been set during this method
 		// (thread safe)
 		boolean clearMustSelect = mustSelectCard;
@@ -188,14 +197,12 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		// Get buffers from mesh
 		List<AbstractMesh> meshes = gameSession.getGameTable().getMeshes();
 
-		if (controlerState.move && selectedCard != null && selectedCard.getContainer().getGroup().getType() != Group.Type.HAND
-				&& selectedCard.getContainer().getGroup().getType() != Group.Type.TABLE) {
+		if (controlerState.move
+				&& selectedCard != null
+				&& (selectedCard.getContainer().getGroup().getType() == Group.Type.HAND && controlerState.y < 698 - 138 / 2 || selectedCard.getContainer().getGroup().getType() == Group.Type.PILE)) {
 			selectedCard.getContainer().remove(selectedCard);
 			myself.getCardGroup("Table").add(selectedCard);
 			selectedCard.setFrontDisplayed(true);
-			selectedCard.getCardMesh().z = 3 * CardMesh.CARD_HEIGHT / 2; // Just
-																			// for
-																			// test
 		}
 		for (AbstractMesh mesh : meshes) {
 			mesh.draw(true, _program, mMMatrix, mVMatrix, mMVPMatrix, mProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular,
@@ -207,12 +214,8 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 				if (cg.getGroup().getType() == Group.Type.TABLE) {
 					for (GameCard card : cg.getCards()) {
 						CardMesh cardMesh = card.getCardMesh();
-						// TODO par courir tous les element pour voir si je suis
-						// sur un element afin de définir le Z de la carte
 						if (controlerState.move && card == selectedCard) {
-							float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, 0f);
-							cardMesh.x = intersect[0];
-							cardMesh.y = intersect[1];
+							computeMovingCardPosition();
 						}
 						// cardMesh.z = tz.getZ() + CardMesh.CARD_HEIGHT *
 						// (nbCard - 1) + CardMesh.CARD_HEIGHT / 2;
@@ -227,7 +230,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 							}
 						}
 					}
-				} else if (cg.getGroup().getType() != Group.Type.HAND) {
+				} else if (cg.getGroup().getType() == Group.Type.PILE) {
 
 					TableZone tz = p.getTableLocation().getTableZone(cg.getGroup().getName());
 					int nbCard = cg.count();
@@ -289,8 +292,15 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 		for (GameCard card : cg.getCards()) {
 			index++;
 			Image2D img = card.getImage2D();
-			img.scaleX = 99f / img.getTexture().originalWidth;
-			img.scaleY = 138f / img.getTexture().originalHeight;
+			if (card.getCardMesh().isLandscape()) {
+				img.scaleX = 138f / img.getTexture().originalWidth;
+				img.scaleY = 99f / img.getTexture().originalHeight;
+				img.ownRotationZ = 90;
+			} else {
+				img.scaleX = 99f / img.getTexture().originalWidth;
+				img.scaleY = 138f / img.getTexture().originalHeight;
+				img.ownRotationZ = 0;
+			}
 			img.x = offsetX;
 			img.y = 698;
 			if (mustSelectCard && controlerState.y > 698 - 138 / 2 && Math.abs(offsetX - controlerState.x) <= 99 / 2) {
@@ -334,6 +344,7 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 			Image2D img = showDetail.getImage2D();
 			img.scaleX = 1f / screenScaleX;
 			img.scaleY = 1f / screenScaleY;
+			img.ownRotationZ = 0;
 			img.x = 1280 / 2;
 			img.y = 768 / 2;
 			img.draw(_program, mMMatrix, mVMatrix, mMVPMatrix, m2DProjMatrix, normalMatrix, mLightPosInEyeSpace, lightColor, matAmbient, matDiffuse, matSpecular, matShininess,
@@ -348,6 +359,51 @@ public class GameSessionRenderer implements GLSurfaceView.Renderer {
 
 		update();
 
+	}
+
+	private void computeMovingCardPosition() {
+		TableZone zone = null;
+		CardGroup group = null;
+		if (controlerState.y > 698 - 138 / 2) {
+			dropIn = myself.getCardGroup("Hand");
+		} else {
+			// parourir tous les groupes
+			// parourir toutes les structure 3d
+			for (Player p : gameSession.getPlayers()) {
+				for (CardGroup cg : p.getCardGroups()) {
+					if (cg.getGroup().getType() == Group.Type.PILE) {
+						TableZone tz = p.getTableLocation().getTableZone(cg.getGroup().getName());
+						if (zone == null || zone.getZ() < tz.getZ()) {
+							float demiScaleX = cg.getGroup().getWidth() / 200.0f;
+							float demiScaleY = cg.getGroup().getHeight() / 200.0f;
+							float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, tz.getZ());
+							if (intersect[0] >= tz.getX() - demiScaleX && intersect[0] <= tz.getX() + demiScaleX && intersect[1] >= tz.getY() - demiScaleY
+									&& intersect[1] <= tz.getY() + demiScaleY) {
+								// on est sur un groupe
+								zone = tz;
+								group = cg;
+							}
+						}
+					}
+				}
+			}
+			dropIn = group;
+		}
+		CardMesh cardMesh = selectedCard.getCardMesh();
+		if (zone != null) {
+			cardMesh.x = zone.getX();
+			cardMesh.y = zone.getY();
+			cardMesh.z = zone.getZ() + CardMesh.CARD_HEIGHT * group.count() + CardMesh.CARD_HEIGHT / 2;
+		} else {
+			float[] intersect = SceneUtil.ScreenTo3D(controlerState.x, controlerState.y, realWidth, realHeight, eyePos, mProjMatrix, mVMatrix, 0f);
+			cardMesh.x = intersect[0];
+			cardMesh.y = intersect[1];
+			cardMesh.z = 0.115465f + CardMesh.CARD_HEIGHT / 2; // tempo,
+																// normalmet il
+			// faut mettre
+			// CardMesh.CARD_HEIGHT
+			// / 2
+		}
 	}
 
 	@Override
