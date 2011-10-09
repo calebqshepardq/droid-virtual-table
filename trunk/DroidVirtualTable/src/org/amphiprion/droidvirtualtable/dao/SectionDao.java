@@ -19,6 +19,9 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
 import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.Group;
@@ -158,6 +161,27 @@ public class SectionDao extends AbstractDao {
 		} else if (entity.getState() == DbState.LOADED) {
 			update(entity);
 		}
+	}
+
+	public List<Section> getSections(String gameId) {
+		String sql = "SELECT " + Section.DbField.ID + "," + Section.DbField.GAME_ID + "," + Section.DbField.NAME + "," + Section.DbField.GROUP_ID + " from SECTION where "
+				+ Section.DbField.GAME_ID + "=?";
+
+		sql += " order by " + Section.DbField.NAME;
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { gameId });
+		ArrayList<Section> result = new ArrayList<Section>();
+		if (cursor.moveToFirst()) {
+			do {
+				Section a = new Section(cursor.getString(0));
+				a.setGame(new Game(cursor.getString(1)));
+				a.setName(cursor.getString(2));
+				a.setStartupGroup(new Group(cursor.getString(3)));
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
 	}
 
 }
