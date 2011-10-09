@@ -218,7 +218,9 @@ public class DeckListActivity extends Activity {
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-
+					Intent i = new Intent(DeckListActivity.this, EditDeckTabActivity.class);
+					i.putExtra("DECK", deck);
+					startActivity(i);
 				}
 			});
 			view.setOnLongClickListener(new View.OnLongClickListener() {
