@@ -19,6 +19,9 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.amphiprion.droidvirtualtable.entity.CardDefinition;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
@@ -84,6 +87,28 @@ public class CardPropertyDao extends AbstractDao {
 			result = a;
 		}
 		cursor.close();
+		return result;
+	}
+
+	public List<CardProperty> getCardProperties(String gameId) {
+
+		String sql = "SELECT cp." + CardProperty.DbField.ID + ",cp." + CardProperty.DbField.CARD_DEF_ID + ",cp." + CardProperty.DbField.NAME + ",cp." + CardProperty.DbField.TYPE
+				+ " from CARD_PROPERTY cp, CARD_DEFINITION cd where cp." + CardProperty.DbField.CARD_DEF_ID + "=cd." + CardDefinition.DbField.ID + " and "
+				+ CardDefinition.DbField.GAME_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { gameId });
+		ArrayList<CardProperty> result = new ArrayList<CardProperty>();
+		if (cursor.moveToFirst()) {
+			do {
+				CardProperty a = new CardProperty(cursor.getString(0));
+				a.setDefinition(new CardDefinition(cursor.getString(1)));
+				a.setName(cursor.getString(2));
+				a.setType(cursor.getString(3));
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+
 		return result;
 	}
 

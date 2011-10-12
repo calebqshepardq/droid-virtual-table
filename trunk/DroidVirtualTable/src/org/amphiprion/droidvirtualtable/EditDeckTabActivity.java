@@ -15,8 +15,8 @@ import android.widget.TabHost;
 public class EditDeckTabActivity extends TabActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.edit_deck);
 		TabHost tabHost = getTabHost(); // The activity TabHost
 		tabHost.clearAllTabs();
@@ -28,12 +28,17 @@ public class EditDeckTabActivity extends TabActivity {
 		Log.d(ApplicationConstants.PACKAGE, "sections:" + sections.size());
 		for (Section s : sections) {
 			// Create an Intent to launch an Activity for the tab (to be reused)
-			intent = new Intent().setClass(this, EditDeckSection.class);
-			intent.putExtra("SECTION_ID", s.getId());
+			intent = new Intent().setClass(this, DeckContentListActivity.class);
+			intent.putExtra("DECK", deck);
+			intent.putExtra("SECTION", s);
 			// Initialize a TabSpec for each tab and add it to the TabHost
 			spec = tabHost.newTabSpec(s.getName()).setIndicator(s.getName()).setContent(intent);
 			tabHost.addTab(spec);
 			Log.d(ApplicationConstants.PACKAGE, "Add tab:" + s.getName());
+		}
+		for (int i = 0; i < sections.size(); i++) {
+			tabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 40;
+
 		}
 	}
 }

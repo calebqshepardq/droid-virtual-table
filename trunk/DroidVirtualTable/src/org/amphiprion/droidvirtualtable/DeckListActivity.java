@@ -53,6 +53,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
@@ -280,15 +281,54 @@ public class DeckListActivity extends Activity {
 		// R.string.apply_existing_filter);
 		// addAccount.setIcon(R.drawable.search);
 		//
-		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_DECK, 1, R.string.import_deck);
-		search.setIcon(android.R.drawable.ic_menu_upload);
+		MenuItem createMenu = menu.add(0, ApplicationConstants.MENU_ID_CREATE_DECK, 0, R.string.create_deck);
+		createMenu.setIcon(android.R.drawable.ic_menu_add);
+
+		MenuItem importMenu = menu.add(0, ApplicationConstants.MENU_ID_IMPORT_DECK, 1, R.string.import_deck);
+		importMenu.setIcon(android.R.drawable.ic_menu_upload);
 
 		return true;
 	}
 
+	private void createDeck() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle(getString(R.string.create_deck));
+
+		// Set an EditText view to get user input
+		final EditText input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				String value = input.getText().toString();
+				if (!"".equals(value.trim())) {
+					Deck deck = new Deck();
+					deck.setGame(game);
+					deck.setName(value);
+					DeckDao.getInstance(DeckListActivity.this).persist(deck);
+					initDeckList();
+				}
+				return;
+			}
+		});
+
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				return;
+			}
+		});
+		alert.show();
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_DECK) {
+		if (item.getItemId() == ApplicationConstants.MENU_ID_CREATE_DECK) {
+			createDeck();
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_IMPORT_DECK) {
 			final File importDeckDir = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY_IMPORT_DECKS);
 			final String[] files = importDeckDir.list();
 			if (files == null || files.length == 0) {

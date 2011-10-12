@@ -163,9 +163,11 @@ public class OctgnSetHandler {
 
 				CardDao.getInstance(context).persist(card);
 
-				Log.d(ApplicationConstants.PACKAGE, "Card:" + card.getName() + "  img=" + card.getImageName() + "   state:" + card.getState());
-			} else if (localName.equals("property")) {
+				// Log.d(ApplicationConstants.PACKAGE, "Card:" + card.getName()
+				// + "  img=" + card.getImageName() + "   state:" +
+				// card.getState());
 				CardValueDao.getInstance(context).deleteAll(card.getId());
+			} else if (localName.equals("property")) {
 
 				String name = attributes.getValue("name");
 				CardProperty prop = cardProperties.get(name);
@@ -178,9 +180,11 @@ public class OctgnSetHandler {
 				value.setCard(card);
 				value.setValue(attributes.getValue("value"));
 
+				// Log.d(ApplicationConstants.PACKAGE, "   prop name:" + name +
+				// "   value=" + value.getValue() + "   state:" +
+				// value.getState());
 				CardValueDao.getInstance(context).persist(value);
 
-				Log.d(ApplicationConstants.PACKAGE, "   prop name:" + name + "   value=" + value.getValue() + "   state:" + value.getState());
 			} else if (localName.equals("marker")) {
 				task.publishProgress(R.string.import_set_step_marker);
 

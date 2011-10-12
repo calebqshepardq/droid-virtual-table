@@ -19,6 +19,9 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.CardProperty;
 import org.amphiprion.droidvirtualtable.entity.CardValue;
@@ -82,6 +85,27 @@ public class CardValueDao extends AbstractDao {
 			result = a;
 		}
 		cursor.close();
+		return result;
+	}
+
+	public List<CardValue> getCardValues(String cardId) {
+		String sql = "SELECT " + CardValue.DbField.ID + "," + CardValue.DbField.CARD_ID + "," + CardValue.DbField.CARD_PROP_ID + "," + CardValue.DbField.VALUE
+				+ " from CARD_VALUE where " + CardValue.DbField.CARD_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { cardId });
+		ArrayList<CardValue> result = new ArrayList<CardValue>();
+		if (cursor.moveToFirst()) {
+			do {
+				CardValue a = new CardValue(cursor.getString(0));
+				a.setCard(new Card(cursor.getString(1)));
+				a.setProperty(new CardProperty(cursor.getString(2)));
+				a.setValue(cursor.getString(3));
+
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+
 		return result;
 	}
 

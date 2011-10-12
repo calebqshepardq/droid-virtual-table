@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string-array name="operators">
+	<item>Contains</item>
+	<item>=</item>
+	<item>&gt;=</item>
+	<item>&lt;=</item>
+	<item>&gt;.&lt;</item>
+</string-array>
+
     <string name="app_name">DroidVirtualTable</string>
 
 	<string name="an_error_occurs">An error occurs</string>
 	
 	<string name="ok">Ok</string>
+	<string name="cancel">Cancel</string>
+
+	<string name="search_again">Search Again</string>
+	<string name="quantity">Quantity: %1$s</string>
+	<string name="add_card">Add a Card</string>
+	<string name="add_to_deck">Add to the Deck</string>
+	<string name="remove_from_deck">Remove from the Deck</string>
+	<string name="create_deck">Create a Deck</string>
+
+	<string name="filter_set">Set Filters</string>
+	<string name="filter_attribut">Card Attribute Filters</string>
 	
 	<string name="activity_games">Available Game List</string>
 	<string name="activity_sets">Available Sets for %1$s</string>
 	<string name="activity_decks">Available Decks for %1$s</string>
 	<string name="activity_tables">Available Decks for %1$s</string>
+	<string name="activity_cards">Available Cards for %1$s</string>
 
     <string name="loading">Loading...</string>
 	<string name="empty_game_list">\nUse the menu to import a new
-		Game.\n\nTo execute an action on a Game, do a long click on it.</string>
+		Game (OCTGN format o8g).\n\nTo execute an action on a Game, do a long click on it.</string>
 	<string name="empty_set_list">\nUse the menu to import a new
-		Set.\n\nTo execute an action on a Set, do a long click on it.</string>
+		Set (OCTGN format o8s).\n\nTo execute an action on a Set, do a long click on it.</string>
+	<string name="empty_card_list">\nNo card match your search criteria.</string>
+
 	<string name="empty_deck_list">\nUse the menu to import a new
-		Deck.\n\nTo execute an action on a Deck, do a long click on it.</string>
+		Deck (OCTGN format o8d).\n\nTo execute an action on a Deck, do a long click on it.</string>
+	<string name="empty_deck_content_list">\nUse the menu to add a new Card.
+	\n\nTo execute an action on a Card, do a long click on it.</string>
 	<string name="empty_table_list">\nUse the menu to import a new
 		Table.\n\nTo execute an action on a Table, do a long click on it.</string>
 	
@@ -65,6 +89,8 @@
 	<string name="manage_sets">Manage Sets</string>
 	<string name="manage_decks">Manage Decks</string>
 	<string name="manage_tables">Manage Tables</string>
+	
+	<string name="update_quantity">Update Quantity</string>
 	
 	<string name="number_of_sets">Number of Sets: %1$s</string>
 	<string name="number_of_cards">Number of Cards: %1$s</string>
