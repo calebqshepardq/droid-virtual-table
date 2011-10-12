@@ -156,6 +156,31 @@ public class DeckContentDao extends AbstractDao {
 		return result;
 	}
 
+	public List<DeckContent> getDeckContents(String deckId, String sectionId) {
+		String sql = "SELECT " + DeckContent.DbField.ID + "," + DeckContent.DbField.DECK_ID + "," + DeckContent.DbField.SECTION_ID + "," + DeckContent.DbField.NAME + ","
+				+ DeckContent.DbField.CARD_ID + "," + DeckContent.DbField.QUANTITY + " from DECK_CONTENT where " + DeckContent.DbField.DECK_ID + "=? and "
+				+ DeckContent.DbField.SECTION_ID + "=? order by " + DeckContent.DbField.NAME;
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { deckId, sectionId });
+		ArrayList<DeckContent> result = new ArrayList<DeckContent>();
+		if (cursor.moveToFirst()) {
+			do {
+				DeckContent a = new DeckContent(cursor.getString(0));
+				a.setDeck(new Deck(cursor.getString(1)));
+				a.setSection(new Section(cursor.getString(2)));
+				a.setName(cursor.getString(3));
+
+				String cardId = cursor.getString(4);
+				a.setCard(CardDao.getInstance(context).getCard(cardId));
+
+				a.setQuantity(cursor.getInt(5));
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
+	}
+
 	/**
 	 * Persist a new DeckContent.
 	 * 
@@ -199,6 +224,15 @@ public class DeckContentDao extends AbstractDao {
 
 		execSQL(sql, params);
 
+	}
+
+	public void delete(DeckContent entity) {
+		String sql = "delete from DECK_CONTENT where " + DeckContent.DbField.ID + "=?";
+		Object[] params = new Object[1];
+		params[0] = entity.getId();
+
+		execSQL(sql, params);
+		entity.setState(DbState.DELETE);
 	}
 
 	public void persist(DeckContent entity) {

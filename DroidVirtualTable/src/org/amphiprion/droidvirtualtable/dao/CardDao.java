@@ -19,9 +19,18 @@
  */
 package org.amphiprion.droidvirtualtable.dao;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.amphiprion.droidvirtualtable.dto.Criteria;
+import org.amphiprion.droidvirtualtable.dto.Criteria.Operator;
 import org.amphiprion.droidvirtualtable.entity.Card;
 import org.amphiprion.droidvirtualtable.entity.CardDefinition;
+import org.amphiprion.droidvirtualtable.entity.CardProperty;
+import org.amphiprion.droidvirtualtable.entity.CardValue;
 import org.amphiprion.droidvirtualtable.entity.Entity.DbState;
+import org.amphiprion.droidvirtualtable.entity.Game;
 import org.amphiprion.droidvirtualtable.entity.GameSet;
 
 import android.content.Context;
@@ -81,6 +90,65 @@ public class CardDao extends AbstractDao {
 			a.setImageName(cursor.getString(3));
 			a.setDefinition(new CardDefinition(cursor.getString(4)));
 			result = a;
+		}
+		cursor.close();
+		return result;
+	}
+
+	public List<Card> getCards(Game game, int pageIndex, int pageSize, HashMap<String, List<Criteria>> criterias) {
+		String sql = "SELECT c." + Card.DbField.ID + ",c." + Card.DbField.GAME_SET_ID + ",c." + Card.DbField.NAME + ",c." + Card.DbField.IMAGE + ",c." + Card.DbField.CARD_DEF_ID;
+		sql += " from CARD c";
+		String sqlWhere = " where 1=1";
+		if (criterias != null) {
+			int index = 0;
+			for (String name : criterias.keySet()) {
+				List<Criteria> crits = criterias.get(name);
+				if (crits.size() > 0) {
+					index++;
+					sql += ", CARD_PROPERTY cp" + index;
+					sql += ",CARD_VALUE cv" + index;
+					sqlWhere += " and cv" + index + "." + CardValue.DbField.CARD_ID + "=c." + Card.DbField.ID;
+					sqlWhere += " and cv" + index + "." + CardValue.DbField.CARD_PROP_ID + "=cp" + index + "." + CardProperty.DbField.ID;
+					sqlWhere += " and cp" + index + "." + CardProperty.DbField.NAME + "='" + name + "'";
+					sqlWhere += " and (";
+					for (int i = 0; i < crits.size(); i++) {
+						if (i > 0) {
+							sqlWhere += " or ";
+						}
+						Criteria crit = crits.get(i);
+						if (crit.getOperator() == Operator.equals) {
+							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")='" + crit.getFirstValue().trim().toLowerCase() + "'";
+						} else if (crit.getOperator() == Operator.like) {
+							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ") like '%" + crit.getFirstValue().trim().toLowerCase() + "%'";
+						} else if (crit.getOperator() == Operator.gt) {
+							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")>='" + crit.getFirstValue().trim().toLowerCase() + "'";
+						} else if (crit.getOperator() == Operator.lt) {
+							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")<='" + crit.getFirstValue().trim().toLowerCase() + "'";
+						} else if (crit.getOperator() == Operator.between) {
+							sqlWhere += "(LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")>='" + crit.getFirstValue().trim().toLowerCase() + "'";
+							sqlWhere += " and LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")<='" + crit.getSecondValue().trim().toLowerCase() + "')";
+						}
+					}
+					sqlWhere += ")";
+				}
+			}
+		}
+		sql += sqlWhere;
+		sql += " order by c." + Card.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
+		// Log.d(ApplicationConstants.PACKAGE, sql);
+
+		Cursor cursor = getDatabase().rawQuery(sql, null);
+		ArrayList<Card> result = new ArrayList<Card>();
+		if (cursor.moveToFirst()) {
+			do {
+				Card a = new Card(cursor.getString(0));
+				a.setGameSet(new GameSet(cursor.getString(1)));
+				a.setName(cursor.getString(2));
+				a.setImageName(cursor.getString(3));
+				a.setDefinition(new CardDefinition(cursor.getString(4)));
+
+				result.add(a);
+			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		return result;

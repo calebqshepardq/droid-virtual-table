@@ -2,33 +2,36 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.amphiprion.droidvirtualtable"
       android:versionCode="1"
-      android:versionName="1.0">
+      android:versionName="0.0.1 Alpha">
     <uses-sdk android:minSdkVersion="7" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".Home" android:screenOrientation="landscape"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name" android:theme="@android:style/Theme.Black.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".SetListActivity" android:screenOrientation="landscape"
+        <activity android:name=".SetListActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".DeckListActivity" android:screenOrientation="landscape"
+        <activity android:name=".DeckListActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name=".EditDeckTabActivity" android:screenOrientation="landscape"
+        <activity android:name=".EditDeckTabActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name=".EditDeckSection" android:screenOrientation="landscape"
+        <activity android:name=".DeckContentListActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name=".CardListActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".TableListActivity" android:screenOrientation="landscape"
+        <activity android:name=".TableListActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar"
                   android:label="@string/app_name">
         </activity>
 

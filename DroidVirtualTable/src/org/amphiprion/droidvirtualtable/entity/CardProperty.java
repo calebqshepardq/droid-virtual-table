@@ -87,4 +87,8 @@ public class CardProperty extends Entity {
 		this.type = type;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
 }

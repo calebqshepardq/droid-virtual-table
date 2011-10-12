@@ -1,26 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string-array name="operators">
+	<item>Contient</item>
+	<item>=</item>
+	<item>&gt;=</item>
+	<item>&lt;=</item>
+	<item>&gt;.&lt;</item>
+</string-array>
+
     <string name="app_name">DroidVirtualTable</string>
 
 	<string name="an_error_occurs">Une erreur est survenue</string>
 
 	<string name="ok">Ok</string>
+	<string name="cancel">Annuler</string>
+
+	<string name="search_again">Relancer la recherche</string>
+	<string name="quantity">Quantité: %1$s</string>
+	<string name="add_card">Ajouter une carte</string>
+	<string name="add_to_deck">Ajouter au deck</string>
+	<string name="remove_from_deck">Retirer du deck</string>
+	<string name="create_deck">Créer un Deck</string>
+
+	<string name="filter_set">Filtre sur les éditions</string>
+	<string name="filter_attribut">Filtre sur les attributs des cartes</string>
 
 	<string name="activity_games">Liste des jeux disponibles</string>
 	<string name="activity_sets">Liste des éditions pour %1$s</string>
 	<string name="activity_decks">Liste des decks pour %1$s</string>
 	<string name="activity_tables">Liste des tables pour %1$s</string>
+	<string name="activity_cards">Liste des cartes pour %1$s</string>
 	
     <string name="loading">Chargement...</string>
 	<string name="empty_game_list">\nUtiliser le menu pour importer un nouveau
-		jeu.\n\nPour effectuer une action sur un jeu, faire un
+		jeu (format OCTGN o8g).\n\nPour effectuer une action sur un jeu, faire un
 		clic long sur celui-ci.</string>
 	<string name="empty_set_list">\nUtiliser le menu pour importer une nouvelle
-		édition.\n\nPour effectuer une action sur une édition, faire un
+		édition (format OCTGN o8s).\n\nPour effectuer une action sur une édition, faire un
 		clic long sur celle-ci.</string>
+	<string name="empty_card_list">\nAucune carte ne correspond à vos critères.</string>
+
 	<string name="empty_deck_list">\nUtiliser le menu pour importer un nouveau
-		deck.\n\nPour effectuer une action sur un deck, faire un
+		deck (format OCTGN o8d).\n\nPour effectuer une action sur un deck, faire un
 		clic long sur celui-ci.</string>
+	<string name="empty_deck_content_list">\nUtiliser le menu pour ajouter une nouvelle
+		carte.\n\nPour effectuer une action sur une carte, faire un
+		clic long sur celle-ci.</string>
 	<string name="empty_set_table">\nUtiliser le menu pour importer une nouvelle
 		table.\n\nPour effectuer une action sur une table, faire un
 		clic long sur celle-ci.</string>
@@ -68,11 +93,14 @@
 	<string name="manage_sets">Gérer les éditions</string>
 	<string name="manage_decks">Gérer les decks</string>
 	<string name="manage_tables">Gérer les tables</string>
+
+	<string name="update_quantity">Modifier la quantité</string>
 	
 	<string name="number_of_sets">Nombre d\'éditions: %1$s</string>
 	<string name="number_of_cards">Nombre de cartes: %1$s</string>
 	<string name="number_of_decks">Nombre de decks: %1$s</string>
 	<string name="number_of_tables">Nombre de tables: %1$s</string>
 	<string name="number_of_locations">Nombre maximum de joueurs: %1$s</string>
+	
 	
 </resources>

@@ -38,9 +38,15 @@ public interface ApplicationConstants {
 	public static final int MENU_ID_IMPORT_DECK = 5;
 	public static final int MENU_ID_MANAGE_TABLE = 6;
 	public static final int MENU_ID_IMPORT_TABLE = 7;
+	public static final int MENU_ID_SET_QUANTITY = 8;
+	public static final int MENU_ID_ADD_CARD = 9;
+	public static final int MENU_ID_ADD_TO_DECK = 10;
+	public static final int MENU_ID_REMOVE_CARD = 11;
+	public static final int MENU_ID_CREATE_DECK = 12;
 
 	public static final int ACTIVITY_RETURN_MANAGE_SET = 1;
 	public static final int ACTIVITY_RETURN_MANAGE_DECK = 2;
 	public static final int ACTIVITY_RETURN_MANAGE_TABLE = 3;
+	public static final int ACTIVITY_RETURN_ADD_CARD_TO_DECK = 4;
 
 }
