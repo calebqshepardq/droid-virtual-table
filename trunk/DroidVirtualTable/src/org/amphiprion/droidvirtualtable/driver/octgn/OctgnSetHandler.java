@@ -135,6 +135,11 @@ public class OctgnSetHandler {
 				GameSetDao.getInstance(context).persist(set);
 				Log.d(ApplicationConstants.PACKAGE, "Set:" + set.getName() + "  state:" + set.getState());
 			} else if (localName.equals("card")) {
+				if (count % 40 == 39) {
+					GameSetDao.getInstance(context).getDatabase().setTransactionSuccessful();
+					GameSetDao.getInstance(context).getDatabase().endTransaction();
+					GameSetDao.getInstance(context).getDatabase().beginTransaction();
+				}
 				count++;
 				task.publishProgress(R.string.import_set_step_card, count);
 
