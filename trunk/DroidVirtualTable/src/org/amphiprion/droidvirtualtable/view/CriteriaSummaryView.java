@@ -23,13 +23,16 @@ import org.amphiprion.droidvirtualtable.R;
 import org.amphiprion.droidvirtualtable.dto.Criteria;
 import org.amphiprion.droidvirtualtable.dto.Criteria.Operator;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,6 +50,10 @@ public class CriteriaSummaryView extends LinearLayout {
 	private ImageView deleteButton;
 	private EditText secondTxt;
 	private TextView andTxt;
+	private String type;
+	// multipleList
+	private boolean[] _selections;
+	private Button btMultipleList;
 
 	/**
 	 * Construct an deck view.
@@ -56,24 +63,31 @@ public class CriteriaSummaryView extends LinearLayout {
 	 * @param deck
 	 *            the entity
 	 */
-	public CriteriaSummaryView(Context context, Criteria criteria) {
+	public CriteriaSummaryView(Context context, String type, Criteria criteria) {
 		super(context);
 		this.criteria = criteria;
+		this.type = type;
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_black_background_states));
 
 		addView(createName());
+		if ("List".equals(type)) {
+			addView(createListValue());
+		} else if ("MultipleList".equals(type)) {
+			_selections = new boolean[criteria.getAllowedValues().size()];
+			criteria.setOperator(Operator.like);
+			addView(createMultipleListValue());
+		} else {
+			addView(createOperantor());
 
-		addView(createOperantor());
-
-		addView(createFirstValue());
-		addView(createAnd());
-		addView(createSecondValue());
-
+			addView(createFirstValue());
+			addView(createAnd());
+			addView(createSecondValue());
+			update();
+		}
 		addView(createDeleteButton());
 
-		update();
 	}
 
 	/**
@@ -111,6 +125,93 @@ public class CriteriaSummaryView extends LinearLayout {
 		tv.setSelection(1);
 
 		return tv;
+	}
+
+	/**
+	 * Create the collection icon view.
+	 * 
+	 * @return the view
+	 */
+	private View createListValue() {
+		final Spinner tv = new Spinner(getContext());
+		tv.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, criteria.getAllowedValues()));
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		// imglp.gravity = Gravity.CENTER_VERTICAL;
+		// imglp.rightMargin = 5;
+		tv.setLayoutParams(imglp);
+
+		tv.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				criteria.setFirstValue(criteria.getAllowedValues().get(tv.getSelectedItemPosition()));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+		tv.setSelection(1);
+
+		return tv;
+	}
+
+	/**
+	 * Create the collection icon view.
+	 * 
+	 * @return the view
+	 */
+	private View createMultipleListValue() {
+		final String[] _options = new String[criteria.getAllowedValues().size()];
+		for (int i = 0; i < criteria.getAllowedValues().size(); i++) {
+			_options[i] = criteria.getAllowedValues().get(i);
+		}
+		btMultipleList = new Button(getContext());
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		// imglp.gravity = Gravity.CENTER_VERTICAL;
+		// imglp.rightMargin = 5;
+		btMultipleList.setLayoutParams(imglp);
+
+		btMultipleList.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				AlertDialog dlg = new AlertDialog.Builder(getContext())
+				// .setTitle( "Planets" )
+						.setMultiChoiceItems(_options, _selections, new DialogSelectionClickHandler()).setPositiveButton("OK", new DialogButtonClickHandler()).create();
+				dlg.show();
+			}
+		});
+
+		return btMultipleList;
+	}
+
+	private class DialogButtonClickHandler implements DialogInterface.OnClickListener {
+		@Override
+		public void onClick(DialogInterface dialog, int clicked) {
+			switch (clicked) {
+			case DialogInterface.BUTTON_POSITIVE:
+				String s = "";
+				for (int i = 0; i < _selections.length; i++) {
+					if (_selections[i]) {
+						if (s.length() > 0) {
+							s += " & ";
+						}
+						s += criteria.getAllowedValues().get(i);
+					}
+				}
+				btMultipleList.setText(s);
+				criteria.setFirstValue(s);
+				break;
+			}
+		}
+	}
+
+	private class DialogSelectionClickHandler implements DialogInterface.OnMultiChoiceClickListener {
+
+		@Override
+		public void onClick(DialogInterface arg0, int arg1, boolean arg2) {
+
+		}
 	}
 
 	/**

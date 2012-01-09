@@ -109,6 +109,23 @@ public class CardValueDao extends AbstractDao {
 		return result;
 	}
 
+	public List<String> getCardValuesByProperty(String cardPropertyId) {
+		String sql = "SELECT distinct " + CardValue.DbField.VALUE + " from CARD_VALUE where " + CardValue.DbField.CARD_PROP_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { cardPropertyId });
+		ArrayList<String> result = new ArrayList<String>();
+		if (cursor.moveToFirst()) {
+			do {
+				String a = cursor.getString(0);
+
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+
+		return result;
+	}
+
 	/**
 	 * Persist a new CardValue.
 	 * 

@@ -159,7 +159,7 @@ public class OctgnSetHandler {
 						FileUtil.copy(source, destFile);
 					}
 				}
-				card.setDefinition(new CardDefinition("1"));
+				card.setDefinition(new CardDefinition(game.getId()));
 
 				CardDao.getInstance(context).persist(card);
 
@@ -172,7 +172,7 @@ public class OctgnSetHandler {
 				String name = attributes.getValue("name");
 				CardProperty prop = cardProperties.get(name);
 				if (prop == null) {
-					prop = CardPropertyDao.getInstance(context).getCardProperty("1", name);
+					prop = CardPropertyDao.getInstance(context).getCardProperty(game.getId(), name);
 					cardProperties.put(name, prop);
 				}
 				CardValue value = new CardValue();
