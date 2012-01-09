@@ -38,7 +38,8 @@ public class CardPropertyAdapter extends ArrayAdapter<CardProperty> {
 	 * Default constructor.
 	 */
 	public CardPropertyAdapter(Context context, List<CardProperty> properties) {
-		super(context, android.R.layout.select_dialog_item, properties);
+		// super(context, android.R.layout.select_dialog_item, properties);
+		super(context, android.R.layout.simple_spinner_item, properties);
 	}
 
 }

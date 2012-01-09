@@ -97,8 +97,8 @@ public class CardDao extends AbstractDao {
 
 	public List<Card> getCards(Game game, int pageIndex, int pageSize, HashMap<String, List<Criteria>> criterias) {
 		String sql = "SELECT c." + Card.DbField.ID + ",c." + Card.DbField.GAME_SET_ID + ",c." + Card.DbField.NAME + ",c." + Card.DbField.IMAGE + ",c." + Card.DbField.CARD_DEF_ID;
-		sql += " from CARD c";
-		String sqlWhere = " where 1=1";
+		sql += " from CARD c, GAME_SET gs";
+		String sqlWhere = " where c." + Card.DbField.GAME_SET_ID + "=gs." + GameSet.DbField.ID + " and gs." + GameSet.DbField.GAME_ID + "=? ";
 		if (criterias != null) {
 			int index = 0;
 			for (String name : criterias.keySet()) {
@@ -119,7 +119,19 @@ public class CardDao extends AbstractDao {
 						if (crit.getOperator() == Operator.equals) {
 							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")='" + crit.getFirstValue().trim().toLowerCase() + "'";
 						} else if (crit.getOperator() == Operator.like) {
-							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ") like '%" + crit.getFirstValue().trim().toLowerCase() + "%'";
+							if ("MultipleList".equals(crit.getType())) {
+								String[] strs = crit.getFirstValue().split(" & ");
+								sqlWhere += "(";
+								for (int istr = 0; istr < strs.length; istr++) {
+									if (istr > 0) {
+										sqlWhere += " and ";
+									}
+									sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ") like '%" + strs[istr].trim().toLowerCase() + "%'";
+								}
+								sqlWhere += ")";
+							} else {
+								sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ") like '%" + crit.getFirstValue().trim().toLowerCase() + "%'";
+							}
 						} else if (crit.getOperator() == Operator.gt) {
 							sqlWhere += "LOWER(cv" + index + "." + CardValue.DbField.VALUE + ")>='" + crit.getFirstValue().trim().toLowerCase() + "'";
 						} else if (crit.getOperator() == Operator.lt) {
@@ -137,7 +149,7 @@ public class CardDao extends AbstractDao {
 		sql += " order by c." + Card.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
 		// Log.d(ApplicationConstants.PACKAGE, sql);
 
-		Cursor cursor = getDatabase().rawQuery(sql, null);
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { game.getId() });
 		ArrayList<Card> result = new ArrayList<Card>();
 		if (cursor.moveToFirst()) {
 			do {

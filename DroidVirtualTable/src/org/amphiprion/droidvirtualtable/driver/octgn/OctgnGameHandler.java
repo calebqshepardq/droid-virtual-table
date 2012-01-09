@@ -126,7 +126,7 @@ public class OctgnGameHandler {
 			} else if (localName.equals("card")) {
 				task.publishProgress(R.string.import_game_step_card);
 
-				def = new CardDefinition("1");
+				def = new CardDefinition(game.getId());
 				boolean exists = CardDefinitionDao.getInstance(context).exists(def.getId());
 				if (!exists) {
 					def.setState(DbState.NEW);

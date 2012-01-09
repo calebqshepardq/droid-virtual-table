@@ -43,7 +43,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_droidvirtualtable";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 5;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -119,6 +119,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		if (oldVersion == 2) {
 			db.execSQL("create table BOARD_TABLE (" + Table.DbField.ID + " text primary key, " + Table.DbField.GAME_ID + " text not null," + Table.DbField.NAME + " text not null,"
 					+ Table.DbField.LOCATION_COUNT + " integer not null)");
+			oldVersion++;
+		}
+		if (oldVersion == 3) {
+			db.execSQL("delete from CARD_DEFINITION where " + CardDefinition.DbField.ID + "='1'");
+			oldVersion++;
+		}
+		if (oldVersion == 4) {
+			db.execSQL("delete from CARD_PROPERTY where " + CardProperty.DbField.CARD_DEF_ID + "='1'");
 			oldVersion++;
 		}
 	}

@@ -1,6 +1,7 @@
 package org.amphiprion.droidvirtualtable.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Criteria implements Serializable {
 	/**
@@ -12,13 +13,21 @@ public class Criteria implements Serializable {
 		like, equals, gt, lt, between
 	}
 
+	private String type;
 	private String name;
 	private Operator operator = Operator.equals;
 	private String firstValue;
 	private String secondValue;
+	private List<String> allowedValues;
 
-	public Criteria(String name) {
+	public Criteria(String type, String name, List<String> allowedValues) {
+		this.type = type;
 		this.name = name;
+		this.allowedValues = allowedValues;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	public String getName() {
@@ -47,5 +56,9 @@ public class Criteria implements Serializable {
 
 	public void setSecondValue(String secondValue) {
 		this.secondValue = secondValue;
+	}
+
+	public List<String> getAllowedValues() {
+		return allowedValues;
 	}
 }

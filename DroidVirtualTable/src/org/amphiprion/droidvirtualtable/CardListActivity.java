@@ -21,6 +21,7 @@ package org.amphiprion.droidvirtualtable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -83,7 +84,10 @@ public class CardListActivity extends Activity {
 	private ImageView cardImage;
 	private Bitmap oldBitmap;
 	private LinearLayout cardAttributesLayout;
+	// prop.getId -> prop
 	private HashMap<String, CardProperty> cardProperties = new HashMap<String, CardProperty>();
+	// prop.getId -> list of existing values for this prop
+	private HashMap<String, List<String>> cardPropertyValues = new HashMap<String, List<String>>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,25 @@ public class CardListActivity extends Activity {
 		List<CardProperty> props = CardPropertyDao.getInstance(this).getCardProperties(game.getId());
 		for (CardProperty prop : props) {
 			cardProperties.put(prop.getId(), prop);
+			if ("List".equals(prop.getType())) {
+				List<String> propValues = CardValueDao.getInstance(this).getCardValuesByProperty(prop.getId());
+				cardPropertyValues.put(prop.getId(), propValues);
+			} else if ("MultipleList".equals(prop.getType())) {
+				List<String> propValues = CardValueDao.getInstance(this).getCardValuesByProperty(prop.getId());
+
+				List<String> splitedList = new ArrayList<String>();
+				for (String str : propValues) {
+					String[] strs = str.split("\\.");
+					for (String s : strs) {
+						s = s.trim();
+						if (s.length() > 0 && !splitedList.contains(s)) {
+							splitedList.add(s);
+						}
+					}
+				}
+				Collections.sort(splitedList);
+				cardPropertyValues.put(prop.getId(), splitedList);
+			}
 		}
 
 		TextView tv = (TextView) findViewById(R.id.card_title);
@@ -162,8 +185,12 @@ public class CardListActivity extends Activity {
 		cardAttributesLayout.removeAllViews();
 		List<CardValue> cardValues = CardValueDao.getInstance(this).getCardValues(card.getId());
 		for (CardValue cardValue : cardValues) {
+			// CardProperty prop =
+			// cardProperties.get(cardValue.getProperty().getId());
+			// if (prop != null) {
 			cardValue.setProperty(cardProperties.get(cardValue.getProperty().getId()));
 			cardAttributesLayout.addView(new CardAttributView(this, cardValue));
+			// }
 		}
 	}
 
@@ -171,7 +198,7 @@ public class CardListActivity extends Activity {
 		final List<CardProperty> cardProperties = CardPropertyDao.getInstance(CardListActivity.this).getCardProperties(game.getId());
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getResources().getString(R.string.import_deck));
+		builder.setTitle(getResources().getString(R.string.filter_attribut));
 		builder.setAdapter(new CardPropertyAdapter(CardListActivity.this, cardProperties), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int item) {
@@ -200,10 +227,10 @@ public class CardListActivity extends Activity {
 				}
 			}
 		}
-		final Criteria criteria = new Criteria(prop.getName());
+		final Criteria criteria = new Criteria(prop.getType(), prop.getName(), cardPropertyValues.get(prop.getId()));
 		propCriterias.add(criteria);
 
-		final CriteriaSummaryView critView = new CriteriaSummaryView(this, criteria);
+		final CriteriaSummaryView critView = new CriteriaSummaryView(this, prop.getType(), criteria);
 		int pos = ((LinearLayout) insertAfter.getParent()).indexOfChild(insertAfter);
 		((LinearLayout) insertAfter.getParent()).addView(critView, pos + 1);
 
